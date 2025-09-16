@@ -8,9 +8,11 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequest {
+public class PullBorWListRequest {
     @JsonProperty("user_account")
     private String userAccount;
+    @JsonProperty("target_account")
+    private String targetAccount;
 
-    private String password;
+
 }

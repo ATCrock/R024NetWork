@@ -10,9 +10,9 @@ import lombok.*;
 @NoArgsConstructor
 public class UpadteInformationRequest {
     @JsonProperty("prev_account")
-    private Integer prevAccount;
+    private String prevAccount;
     @JsonProperty("new_account")
-    private Integer latestUserAccount;
+    private String latestUserAccount;
     @JsonProperty("new_name")
     private String userName;
     @JsonProperty("new_password")

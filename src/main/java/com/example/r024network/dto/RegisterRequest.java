@@ -12,7 +12,7 @@ public class RegisterRequest {
     @JsonProperty("user_id")
     private Integer userId;
     @JsonProperty("user_account")
-    private Integer userAccount;
+    private String userAccount;
     @JsonProperty("user_name")
     private String userName;
     private String password;

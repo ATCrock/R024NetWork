@@ -1,4 +1,4 @@
-package com.example.r024network.result;
+package com.example.r024network.Result;
 
 import lombok.*;
 import org.springframework.http.HttpStatus;

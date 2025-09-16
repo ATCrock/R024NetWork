@@ -10,22 +10,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @TableName(value = "userdata")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
 public class Userdata {
-    @TableId(type = IdType.AUTO)
     @JsonProperty("user_id")
+    @TableId(type = IdType.AUTO)
     private Integer userId;
 
-    private Integer userAccount;
-
+    @JsonProperty("user_account")
+    private String userAccount;
+    @JsonProperty("name")
     private String userName;
-
+    @JsonProperty("password")
     private String userPassword;
-
+    @JsonProperty("user_type")
     private Integer userType;
-
+    @JsonProperty("head_portrait")
     private String userHeadPortraitAddress;
+    @JsonProperty("black_list")
+    private String blackList = "0";
 }

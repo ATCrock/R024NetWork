@@ -1,4 +1,4 @@
-package com.example.r024network.exception;
+package com.example.r024network.Exception;
 
 import lombok.Getter;
 

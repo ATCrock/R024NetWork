@@ -1,4 +1,4 @@
-package com.example.r024network.filter;
+package com.example.r024network.Filter;
 import com.example.r024network.jwt.JWTTokenUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;

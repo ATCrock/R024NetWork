@@ -1,15 +1,15 @@
 package com.example.r024network.Controller;
 
 import com.example.r024network.dto.LoginRequest;
+import com.example.r024network.dto.PullBorWListRequest;
 import com.example.r024network.dto.RegisterRequest;
 import com.example.r024network.dto.UpadteInformationRequest;
-import com.example.r024network.exception.APIException;
-import com.example.r024network.result.AjaxResult;
-import com.example.r024network.service.UserService;
+import com.example.r024network.Exception.APIException;
+import com.example.r024network.Result.AjaxResult;
+import com.example.r024network.Service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -40,7 +40,7 @@ public class UserController {
         return AjaxResult.success();
     }
 
-    @PostMapping("/update")
+    @PutMapping("/update")
     public AjaxResult<UpadteInformationRequest> updateUserInformation(@Valid @RequestBody UpadteInformationRequest upadteInformationRequest) {
         try {
             userService.updateUserInformation(upadteInformationRequest.getPrevAccount(), upadteInformationRequest.getLatestUserAccount(),
@@ -50,4 +50,25 @@ public class UserController {
         }
         return AjaxResult.success();
     }
+
+    @PostMapping("/pull_black")
+    public AjaxResult <PullBorWListRequest> pullBlack(@Valid @RequestBody PullBorWListRequest pullBorWListRequest){
+        try{
+            userService.pullBlack(pullBorWListRequest.getUserAccount(), pullBorWListRequest.getTargetAccount());
+        }catch (APIException e){
+            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
+        }
+        return AjaxResult.success();
+    }
+
+    @PostMapping("/pull_white")
+    public AjaxResult <PullBorWListRequest> pullWhite(@Valid @RequestBody PullBorWListRequest pullBorWListRequest){
+        try{
+            userService.pullWhite(pullBorWListRequest.getUserAccount(), pullBorWListRequest.getTargetAccount());
+        }catch (APIException e){
+            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
+        }
+        return AjaxResult.success();
+    }
+
 }

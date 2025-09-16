@@ -1,6 +1,5 @@
-package com.example.r024network.filter;
+package com.example.r024network.Filter;
 
-import com.example.r024network.secret_generator.JWTSecretGenerator;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
