@@ -1,0 +1,37 @@
+public class Userdata {
+    @JsonProperty("user_id")
+    @TableId(type = IdType.AUTO)
+    private Integer userId;
+
+    @JsonProperty("account")
+    private Integer userAccount;
+    @JsonProperty("name")
+    private String userName;
+    @JsonProperty("password")
+    private String userPassword;
+    @JsonProperty("user_type")
+    private Integer userType;
+    @JsonProperty("head_portrait")
+    private String userHeadPortraitAddress;
+    @JsonProperty("black_list")
+    private String blackList;
+}
+
+
+@TableName(value = "postdata")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Postdata {
+    @JsonProperty("post_id")
+    private Integer postId;
+    @JsonProperty("user_id")
+    private Integer userId;
+
+    private String title;
+
+    private String content;
+    @JsonProperty("is_public")
+    private Integer publicOrPrivate;
+}
