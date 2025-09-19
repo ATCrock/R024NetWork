@@ -13,7 +13,7 @@ import java.util.Map;
 // 用于测试JWT的类
 @Component
 public class JWTUtil {
-    // 你的秘钥，应该从安全的地方获取
+    // 秘钥
     private static final String SECRET = "LmPkEAze5jbwndNh/INYLrUMu51113Mz3N8QejiVnuE=";
     private static final SecretKey KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
 

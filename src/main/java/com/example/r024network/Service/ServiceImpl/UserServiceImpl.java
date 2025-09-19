@@ -109,8 +109,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
-
-
+    @Override
+    public int[] getBlack(String userAccount){
+        QueryWrapper<Userdata> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_account",userAccount);
+        Userdata userdata = userdataMapper.selectOne(queryWrapper);
+        return stringSplitter.splitToIntArray(userdata.getBlackList());
+    }
 
 }

@@ -6,5 +6,5 @@ public interface UserService {
     void updateUserInformation(String previousAccount, String newAccount, String newUserName, String newPassword);
     void pullBlack(String userAccount, String targetAccount);
     void pullWhite(String userAccount, String targetAccount);
-
+    int[] getBlack(String userAccount);
 }

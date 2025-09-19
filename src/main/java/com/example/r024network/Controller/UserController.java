@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @PostMapping("/pull_black")
-    public AjaxResult <PullBorWListRequest> pullBlack(@Valid @RequestBody PullBorWListRequest pullBorWListRequest){
+    public AjaxResult<PullBorWListRequest> pullBlack(@Valid @RequestBody PullBorWListRequest pullBorWListRequest){
         try{
             userService.pullBlack(pullBorWListRequest.getUserAccount(), pullBorWListRequest.getTargetAccount());
         }catch (APIException e){
@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @PostMapping("/pull_white")
-    public AjaxResult <PullBorWListRequest> pullWhite(@Valid @RequestBody PullBorWListRequest pullBorWListRequest){
+    public AjaxResult<PullBorWListRequest> pullWhite(@Valid @RequestBody PullBorWListRequest pullBorWListRequest){
         try{
             userService.pullWhite(pullBorWListRequest.getUserAccount(), pullBorWListRequest.getTargetAccount());
         }catch (APIException e){
@@ -71,4 +71,6 @@ public class UserController {
         return AjaxResult.success();
     }
 
+//    @PostMapping("/update_pic")
+//    public AjaxResult<>
 }

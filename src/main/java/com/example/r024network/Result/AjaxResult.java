@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @Setter
 @Data
-@AllArgsConstructor // 任意参数构造器
+@AllArgsConstructor // 全参数构造器
 @NoArgsConstructor
 public class AjaxResult<T>{
     public static final String SUCCESS_MESSAGE = "SUCCESS";
@@ -35,6 +35,7 @@ public class AjaxResult<T>{
     private Integer code;
     private String message;
     private T user_data;
+    //private boolean isShowData;
 
     //private T data;
     //private T user_type;
@@ -42,6 +43,10 @@ public class AjaxResult<T>{
 
     public static <N> AjaxResult<N> success() {
         return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, null);
+    }
+
+    public static <N> AjaxResult<N> success(N user_data) {
+        return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, user_data);
     }
 
     public static <N> AjaxResult<N> fail(String errorMessage) {
