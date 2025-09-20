@@ -7,6 +7,7 @@ import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.UserService;
 import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -16,7 +17,9 @@ import java.util.Arrays;
 public class UserServiceImpl implements UserService {
 
     private final UserdataMapper userdataMapper;
-    private StringSplitter stringSplitter = new StringSplitter();
+    private final StringSplitter stringSplitter = new StringSplitter();
+    private final WrapperHelper  wrapperHelper = new WrapperHelper();
+
     @Override
     public void register(String userAccount, String userName, String password, Integer userType){
         QueryWrapper<Userdata>  queryWrapper = new QueryWrapper<>();
@@ -44,9 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUserInformation(String previousUserAccount, String newUserAccount, String newUserName, String newPassword){
-        QueryWrapper<Userdata> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_account",previousUserAccount);
-        Userdata userdata = userdataMapper.selectOne(queryWrapper);
+        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", previousUserAccount));
         if (userdata==null){
             throw new APIException(410, "未找到该账号");
         }
@@ -67,18 +68,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void pullBlack(String userAccount, String targetAccount){
-        QueryWrapper<Userdata> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_account",userAccount);
-        Userdata userdata = userdataMapper.selectOne(queryWrapper);
+        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", userAccount));
         // 获取userData
-        QueryWrapper<Userdata> targetQueryWrapper = new QueryWrapper<>();
-        targetQueryWrapper.eq("user_account",targetAccount);
-        Userdata targetdata = userdataMapper.selectOne(targetQueryWrapper);
+        Userdata targetdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", targetAccount));
         // 获取targetData
         if (targetdata==null){
             throw new APIException(410, "未找到需要被拉黑的账号");
         }
-        // 不做user处理是因为jwt可以读取到userAccount
+        // 不做user处理是因为可以读取到userAccount
         else{
             String staticBlackList = userdata.getBlackList();
             Integer blackUserId = targetdata.getUserId();
@@ -89,12 +86,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void pullWhite(String userAccount, String targetAccount){
-        QueryWrapper<Userdata> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("user_account",userAccount);
-        Userdata userdata = userdataMapper.selectOne(userQueryWrapper);
-        QueryWrapper<Userdata> targetQueryWrapper = new QueryWrapper<>();
-        targetQueryWrapper.eq("user_account",targetAccount);
-        Userdata targetdata = userdataMapper.selectOne(targetQueryWrapper);
+        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", userAccount));
+        Userdata targetdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", targetAccount));
         if (targetdata==null){
             throw new APIException(410, "未找到需要解除拉黑的账号");
         }
@@ -111,9 +104,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int[] getBlack(String userAccount){
-        QueryWrapper<Userdata> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_account",userAccount);
-        Userdata userdata = userdataMapper.selectOne(queryWrapper);
+        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", userAccount));
         return stringSplitter.splitToIntArray(userdata.getBlackList());
     }
 

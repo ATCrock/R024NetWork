@@ -9,6 +9,7 @@ import com.example.r024network.entity.Userdata;
 import com.example.r024network.mapper.PostdataMapper;
 import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -20,6 +21,7 @@ public class PostServiceImpl implements PostService {
     private final PostdataMapper postdataMapper;
     private final UserdataMapper userdataMapper;
     private final UserService userService;
+    private final WrapperHelper wrapperHelper;
 
     public int binarySearch(int[] array, int target) {
         int left = 0;
@@ -40,9 +42,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void postSingleConfession(Integer account, String title, String content, Integer isAnonymous){
-        QueryWrapper<Userdata> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_account",account);
-        Userdata userdata = userdataMapper.selectOne(queryWrapper);
+        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
         if (title.isBlank() || content.isBlank()){
             throw new APIException(413, "标题或内容不能为空");
         }
@@ -66,16 +66,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void rewritePost(Integer postId, Integer account, String title, String content, Integer isAnonymous){
-        QueryWrapper<Postdata> postQueryWrapper = new QueryWrapper<>();
-        postQueryWrapper.eq("post_id",postId);
-        Postdata post = postdataMapper.selectOne(postQueryWrapper);
+        Postdata post = postdataMapper.selectOne(wrapperHelper.convert("post_id", postId));
         if (post == null){
             throw new APIException(411, "没有对应标题的帖子");
         }else {
             Userdata userdata = userdataMapper.selectById(post.getUserId());
-            QueryWrapper<Userdata> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_account",account);
-            Userdata userdata2 = userdataMapper.selectOne(queryWrapper);
+            Userdata userdata2 = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
             boolean isUserPost = Objects.equals(userdata.getUserId(), userdata2.getUserId());
             if (isUserPost) {
                 post.setUserId(userdata.getUserId());
@@ -96,12 +92,11 @@ public class PostServiceImpl implements PostService {
         queryWrapper.eq("user_account",account);
         queryWrapper.eq("post_id",postId);
         Postdata post = postdataMapper.selectOne(queryWrapper);
+
         if (post == null){
             throw new APIException(411, "没有对应的帖子");
         }else {
-            QueryWrapper<Userdata> userQueryWrapper = new QueryWrapper<>();
-            userQueryWrapper.eq("user_account", account);
-            Userdata userdata = userdataMapper.selectOne(userQueryWrapper);
+            Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
             Integer postUserId = post.getUserId();
             Integer userId = userdata.getUserId();
             boolean isUserPost = Objects.equals(postUserId, userId);
@@ -116,14 +111,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public Postdata[] getAllPost(Integer account) {
         // 用户自己的账号
-        QueryWrapper<Userdata> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_account",account);
-        Userdata userdata = userdataMapper.selectOne(queryWrapper);
+        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
         if (userdata == null){
             throw new APIException(410, "未找到该账号");
         }else {
-            QueryWrapper<Postdata> postQueryWrapper = new QueryWrapper<>();
-            postQueryWrapper.eq("user_id", userdata.getUserId());
             List<Postdata> postList = postdataMapper.selectList(null);
             Postdata[] retPostdata = new Postdata[postList.size()];
             int count = 0;
@@ -140,7 +131,6 @@ public class PostServiceImpl implements PostService {
                             retPostdata[count] = postdata;
                             count++;
                         }
-
                     }else{
                         retPostdata[count] = postdata;
                         count++;

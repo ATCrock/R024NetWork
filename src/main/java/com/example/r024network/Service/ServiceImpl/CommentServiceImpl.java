@@ -20,14 +20,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
     // parent_id为0则代表为回复评论
-    private final PostdataMapper postdataMapper;
     private final UserdataMapper userdataMapper;
-    private final ImagesMapper imagesMapper;
     private final CommentMapper commentMapper;
+    private final WrapperHelper wrapperHelper;
     public void postParentComment(Integer account, String content, Integer postId) {
-        QueryWrapper<Userdata> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("user_account", account);
-        Userdata userdata =  userdataMapper.selectOne(userQueryWrapper);
+        Userdata userdata =  userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
         Comment comment = new Comment();
         comment.setParentCommentId(0);
         comment.setUserId(userdata.getUserId());
@@ -37,25 +34,19 @@ public class CommentServiceImpl implements CommentService {
     }
 
     public List<Comment> listAllComment(Integer postId) {
-        QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("post_id", postId);
-        return commentMapper.selectList(queryWrapper);
+        return commentMapper.selectList(wrapperHelper.convert("post_id", postId));
     }
 
     public void deleteComment(Integer commentId) {
-        QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("comment_id", commentId);
-        Comment  comment = commentMapper.selectOne(queryWrapper);
+        Comment comment = commentMapper.selectOne(wrapperHelper.convert("comment_id", commentId));
         if (comment == null){
             throw new APIException(410, "评论不存在");
         }
-        commentMapper.delete(queryWrapper);
+        commentMapper.delete(wrapperHelper.convert("comment_id", commentId));
     }
 
     public void postFollowComment(Integer account, String content, Integer postId, Integer followingId) {
-        QueryWrapper<Userdata> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("user_account", account);
-        Userdata userdata =  userdataMapper.selectOne(userQueryWrapper);
+        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
         Comment comment = new Comment();
         comment.setUserId(userdata.getUserId());
         comment.setParentCommentId(1);// 0主评论，非0都是副评论

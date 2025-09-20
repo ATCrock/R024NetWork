@@ -6,6 +6,7 @@ import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.ImageService;
 import com.example.r024network.entity.Images;
 import com.example.r024network.entity.Userdata;
+import com.example.r024network.mapper.CommentMapper;
 import com.example.r024network.mapper.ImagesMapper;
 import com.example.r024network.mapper.UserdataMapper;
 import jakarta.validation.Valid;
@@ -30,18 +31,15 @@ public class ImageServiceImpl implements ImageService {
     private Path fileStorageLocation;
     private final ImagesMapper imagesMapper;
     private final UserdataMapper userdataMapper;
+    private final WrapperHelper warpperHelper;
 
     public void updateHeadPortraitDefault(@Value("${file.upload-dir}") String headAddress, Integer account) {
         this.fileStorageLocation = Paths.get(headAddress).toAbsolutePath().normalize();
-        QueryWrapper<Images> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("file_path", headAddress);
-        Images images = imagesMapper.selectOne(queryWrapper);
+        Images images = imagesMapper.selectOne(warpperHelper.convert("file_path", headAddress));
         if (images == null) {
             throw new APIException(410, "没有对应图片");
         }
-        QueryWrapper<Userdata> userdataQueryWrapper = new QueryWrapper<>();
-        userdataQueryWrapper.eq("user_account", account);
-        Userdata userdata = userdataMapper.selectOne(userdataQueryWrapper);
+        Userdata userdata = userdataMapper.selectOne(warpperHelper.convert("user_account", account));
         userdata.setUserHeadPortraitAddress(headAddress);
         images.setIsAvator(1);
         images.setUserId(userdata.getUserId());
@@ -83,15 +81,12 @@ public class ImageServiceImpl implements ImageService {
             }
             Path targetPath = this.fileStorageLocation.resolve(subDirectory);
             Files.createDirectories(targetPath);
-            //String fileExtension = fileName.substring(fileName.lastIndexOf("."));
             Path targetFile = targetPath.resolve(fileName);
             Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
             Images image = new Images();
             image.setFileName(fileName);
             // 还缺了搜索同名文件，到时候补
-            QueryWrapper<Images> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("file_name", fileName);
-            Images imageStatic = imagesMapper.selectOne(queryWrapper);
+            Images imageStatic = imagesMapper.selectOne(warpperHelper.convert("file_name", fileName));
             Path path = Paths.get(subDirectory, fileName);
             if (imageStatic == null && !Objects.equals(imageStatic.getFileName(), fileName)) {
                 image.setFilePath(path.toString());
