@@ -40,7 +40,7 @@ public class CommentController {
     @DeleteMapping("/delete")
     public AjaxResult<CommentRequest> delete(@Valid @RequestBody CommentRequest commentRequest){
         try{
-            commentService.deleteComment(commentRequest.getPostId());
+            commentService.deleteComment(commentRequest.getCommentId());
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }

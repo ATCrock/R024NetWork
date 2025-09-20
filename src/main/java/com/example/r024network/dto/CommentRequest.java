@@ -18,5 +18,7 @@ public class CommentRequest {
     private Integer commentParentId;
     @JsonProperty("following_id")
     private Integer followId;
+    @JsonProperty("comment_id")
+    private Integer commentId;
 
 }

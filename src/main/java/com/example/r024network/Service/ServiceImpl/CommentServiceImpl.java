@@ -1,7 +1,9 @@
 package com.example.r024network.Service.ServiceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.CommentService;
+import com.example.r024network.dto.CommentRequest;
 import com.example.r024network.entity.Comment;
 import com.example.r024network.entity.Postdata;
 import com.example.r024network.entity.Userdata;
@@ -43,6 +45,10 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(Integer commentId) {
         QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("comment_id", commentId);
+        Comment  comment = commentMapper.selectOne(queryWrapper);
+        if (comment == null){
+            throw new APIException(410, "评论不存在");
+        }
         commentMapper.delete(queryWrapper);
     }
 
