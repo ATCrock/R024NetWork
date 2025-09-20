@@ -9,7 +9,6 @@ import com.example.r024network.entity.Userdata;
 import com.example.r024network.mapper.PostdataMapper;
 import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -47,20 +46,11 @@ public class PostServiceImpl implements PostService {
             throw new APIException(413, "标题或内容不能为空");
         }
         // 1为公开，0为匿名
-        //if (isAnonymous != 1)
-        Integer userId = userdata.getUserId();
-        Postdata postdata = new Postdata();
-        postdata.setUserId(userId);
-        postdata.setUserAccount(String.valueOf(account));
-        if (!(isAnonymous == 1 ||  isAnonymous == 0)){
+        if (! (isAnonymous == 1 || isAnonymous == 0) ){
             throw new APIException(420, "不支持的格式，0为匿名，1为显示名字");
         }
         else{
-            postdata.setUserName(userdata.getUserName());
-            postdata.setTitle(title);
-            postdata.setContent(content);
-            postdata.setPublicOrPrivate(isAnonymous);
-            postdataMapper.insert(postdata);
+            postdataMapper.insert(Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(account)).userName(userdata.getUserName()).content(content).publicOrPrivate(isAnonymous).build());
         }
     }
 
@@ -72,13 +62,8 @@ public class PostServiceImpl implements PostService {
         }else {
             Userdata userdata = userdataMapper.selectById(post.getUserId());
             Userdata userdata2 = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
-            boolean isUserPost = Objects.equals(userdata.getUserId(), userdata2.getUserId());
-            if (isUserPost) {
-                post.setUserId(userdata.getUserId());
-                post.setUserName(userdata2.getUserName());
-                post.setContent(content);
-                post.setPublicOrPrivate(isAnonymous);
-                postdataMapper.insertOrUpdate(post);
+            if (Objects.equals(userdata.getUserId(), userdata2.getUserId())) {
+                postdataMapper.insert(Postdata.builder().userId(userdata.getUserId()).userName(userdata2.getUserName()).publicOrPrivate(isAnonymous).build());
             }else {
                 throw new APIException(412, "你没有发过这个帖子");
             }
@@ -97,10 +82,7 @@ public class PostServiceImpl implements PostService {
             throw new APIException(411, "没有对应的帖子");
         }else {
             Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
-            Integer postUserId = post.getUserId();
-            Integer userId = userdata.getUserId();
-            boolean isUserPost = Objects.equals(postUserId, userId);
-            if (isUserPost) {
+            if (Objects.equals(post.getUserId(), userdata.getUserId())) {
                 postdataMapper.delete(queryWrapper);
             }else {
                 throw new APIException(412, "你没有发过这个帖子");
@@ -121,16 +103,14 @@ public class PostServiceImpl implements PostService {
             int[] blackList = userService.getBlack(String.valueOf(account));
             blackList = Arrays.copyOf(userService.getBlack(String.valueOf(account)), blackList.length);
             for (Postdata postdata : postList) {
-                int userId = postdata.getUserId();
-                int targetBlackId = binarySearch(blackList, userId);
-                if (targetBlackId == -1) {// -1相当于没找到对应用户id
-                    if (postdata.getPublicOrPrivate() == 0) {// 如果发帖子的人不在用户黑名单里面
-                        {if (userId != userdata.getUserId()) {
+                if (binarySearch(blackList, postdata.getUserId()) == -1) {         // -1相当于没找到对应用户id
+                    if (postdata.getPublicOrPrivate() == 0) {         // 如果发帖子的人不在用户黑名单里面
+                        if (!Objects.equals(postdata.getUserId(), userdata.getUserId())) {
                                 postdata.setUserName("anonymity");
                             }
                             retPostdata[count] = postdata;
                             count++;
-                        }
+
                     }else{
                         retPostdata[count] = postdata;
                         count++;

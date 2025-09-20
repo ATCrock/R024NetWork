@@ -1,15 +1,10 @@
 package com.example.r024network.Service.ServiceImpl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.CommentService;
-import com.example.r024network.dto.CommentRequest;
 import com.example.r024network.entity.Comment;
-import com.example.r024network.entity.Postdata;
 import com.example.r024network.entity.Userdata;
 import com.example.r024network.mapper.CommentMapper;
-import com.example.r024network.mapper.ImagesMapper;
-import com.example.r024network.mapper.PostdataMapper;
 import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,11 +20,7 @@ public class CommentServiceImpl implements CommentService {
     private final WrapperHelper wrapperHelper;
     public void postParentComment(Integer account, String content, Integer postId) {
         Userdata userdata =  userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
-        Comment comment = new Comment();
-        comment.setParentCommentId(0);
-        comment.setUserId(userdata.getUserId());
-        comment.setPostId(postId);
-        comment.setContent(content);
+        Comment comment = Comment.builder().userId(userdata.getUserId()).parentCommentId(0).postId(postId).content(content).build();
         commentMapper.insert(comment);
     }
 
@@ -47,12 +38,7 @@ public class CommentServiceImpl implements CommentService {
 
     public void postFollowComment(Integer account, String content, Integer postId, Integer followingId) {
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
-        Comment comment = new Comment();
-        comment.setUserId(userdata.getUserId());
-        comment.setParentCommentId(1);// 0主评论，非0都是副评论
-        comment.setFollowingid(followingId);
-        comment.setPostId(postId);
-        comment.setContent(content);
+        Comment comment = Comment.builder().userId(userdata.getUserId()).parentCommentId(1).followingid(followingId).postId(postId).content(content).build();
         commentMapper.insert(comment);
     }
 }

@@ -7,7 +7,6 @@ import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.UserService;
 import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -22,9 +21,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void register(String userAccount, String userName, String password, Integer userType){
-        QueryWrapper<Userdata>  queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_account",userAccount);
-        Userdata userdata = userdataMapper.selectOne(queryWrapper);
+        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account",userAccount));
         if (userdata==null){
             userdata = Userdata.builder().userAccount(userAccount).userName(userName).userPassword(password).userType(userType).userHeadPortraitAddress("default address").build();
             userdataMapper.insert(userdata);
@@ -38,7 +35,7 @@ public class UserServiceImpl implements UserService {
     public void login(String userAccount, String password){
         QueryWrapper<Userdata> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_account",userAccount);
-        queryWrapper.eq("user_password",password);
+        queryWrapper.eq("user_password",password); // 检索用户密码同时对应的用户
         Userdata userdata = userdataMapper.selectOne(queryWrapper);
         if (userdata==null){
             throw new APIException(402, "账号或密码错误");
@@ -52,13 +49,13 @@ public class UserServiceImpl implements UserService {
             throw new APIException(410, "未找到该账号");
         }
         else{
-            if (newUserName != null && !newUserName.isBlank()) {
+            if (newUserName != null && !newUserName.isBlank()) { // 如果更新后的用户名不是空的或者不存在 就更新名字
                 userdata.setUserName(newUserName);
             }else userdata.setUserName(userdata.getUserName());
-            if (newUserAccount != null) {
+            if (newUserAccount != null) { // 如果更新后的用户账号不是空的就更新
                 userdata.setUserAccount(newUserAccount);
             }else userdata.setUserAccount(previousUserAccount);
-            if (newPassword != null && !newPassword.isBlank()) {
+            if (newPassword != null && !newPassword.isBlank()) { // 如果更新后的密码不是空的或者不存在 就更新
                 userdata.setUserPassword(newPassword);
             }else userdata.setUserPassword(userdata.getUserPassword());
             userdataMapper.insertOrUpdate(userdata);
@@ -76,22 +73,21 @@ public class UserServiceImpl implements UserService {
             throw new APIException(410, "未找到需要被拉黑的账号");
         }
         // 不做user处理是因为可以读取到userAccount
-        else{
-            String staticBlackList = userdata.getBlackList();
-            Integer blackUserId = targetdata.getUserId();
-            userdata.setBlackList(staticBlackList + ";" + blackUserId);
+        else{  // 获取目标账号id,检测用户账号黑名单中是否存在该id，若不存在则拉黑
+            userdata.setBlackList(userdata.getBlackList() + ";" + targetdata.getUserId());
             userdataMapper.insertOrUpdate(userdata);
         }
     }
 
     @Override
     public void pullWhite(String userAccount, String targetAccount){
+        // 获取用户账号与目标账号，如果存在进行下一步
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", userAccount));
         Userdata targetdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", targetAccount));
         if (targetdata==null){
             throw new APIException(410, "未找到需要解除拉黑的账号");
         }
-        else {
+        else { // 获取目标账号id,检测用户账号黑名单中是否存在该id，若存在则取消拉黑
             Integer targetUserId = targetdata.getUserId();
             String staticBlackList = userdata.getBlackList();
             int[] intBlackList = stringSplitter.splitToIntArray(staticBlackList);
