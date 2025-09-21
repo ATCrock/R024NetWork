@@ -1,7 +1,7 @@
 package com.example.r024network.Service.ServiceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.r024network.StringHelper.StringSplitter;
+import com.example.r024network.Helper.StringSplitter;
 import com.example.r024network.entity.Userdata;
 import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.UserService;

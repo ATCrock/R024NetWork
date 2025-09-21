@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +43,8 @@ public class ImageServiceImpl implements ImageService {
         userdataMapper.insertOrUpdate(userdata);
         imagesMapper.insertOrUpdate(images);
     }
+
+
 
     private void setFileStorageLocation(String path){
         this.fileStorageLocation = Paths.get(path).toAbsolutePath().normalize();
@@ -68,7 +71,7 @@ public class ImageServiceImpl implements ImageService {
             String fileExtension = getFileExtensionFromContentType(file.getContentType());
             fileName = "file_" + System.currentTimeMillis() + fileExtension;
         } else {
-            fileName = StringUtils.cleanPath(originalFilename);
+            fileName = String.valueOf(UUID.randomUUID());
             // 统一文件路径，把\斜杠统一换成/
         }
         try {
@@ -83,7 +86,7 @@ public class ImageServiceImpl implements ImageService {
             image.setFileName(fileName);
             Images imageStatic = imagesMapper.selectOne(warpperHelper.convert("file_name", fileName));
             Path path = Paths.get(subDirectory, fileName);
-            if (imageStatic == null && !Objects.equals(imageStatic.getFileName(), fileName)) { // 先判断是否为null，如果不是null再获取文件名，与给定文件名对比，不同就保存新图片，相同就返回已有文件路径
+            if (imageStatic == null || !Objects.equals(imageStatic.getFileName(), fileName)) { // 先判断是否为null，如果不是null再获取文件名，与给定文件名对比，不同就保存新图片，相同就返回已有文件路径
                 image.setFilePath(path.toString());
                 image.setFileSize(String.valueOf(file.getSize()));
                 imagesMapper.insert(image);

@@ -4,6 +4,7 @@ import com.example.r024network.Exception.APIException;
 import com.example.r024network.Result.AjaxResult;
 import com.example.r024network.Service.CommentService;
 import com.example.r024network.dto.CommentRequest;
+import com.example.r024network.dto.CommentWithImagesRequest;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;

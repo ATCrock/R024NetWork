@@ -10,6 +10,9 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/apifox/post")
@@ -57,4 +60,15 @@ public class PostController {
         }
         return AjaxResult.success(postdata);
     }
+
+    @PostMapping(value = "/post_with_images", consumes ="multipart/form-data")
+    public AjaxResult<Object> postWithImages(@Valid @RequestParam Integer user_account, String title, String content, Integer is_public, List<MultipartFile> files){
+        try {
+            postService.postWithImageParentComment(user_account, title, content, is_public, files);
+        }catch (APIException e){
+            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
+        }
+        return AjaxResult.success();
+    }
+
 }

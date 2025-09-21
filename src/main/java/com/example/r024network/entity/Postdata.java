@@ -19,13 +19,10 @@ public class Postdata {
     @TableId(type = IdType.AUTO)
     @JsonProperty("post_id")
     private Integer postId;
-
     @JsonProperty("user_id")
     private Integer userId;
-
     @JsonProperty("account")
     private String userAccount;
-
     @JsonProperty("user_name")
     private String userName;
     @JsonProperty("title")

@@ -2,12 +2,16 @@ package com.example.r024network.Service.ServiceImpl;
 
 import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.CommentService;
+import com.example.r024network.Service.ImageService;
 import com.example.r024network.entity.Comment;
+import com.example.r024network.entity.Images;
 import com.example.r024network.entity.Userdata;
 import com.example.r024network.mapper.CommentMapper;
+import com.example.r024network.mapper.ImagesMapper;
 import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,6 +22,9 @@ public class CommentServiceImpl implements CommentService {
     private final UserdataMapper userdataMapper;
     private final CommentMapper commentMapper;
     private final WrapperHelper wrapperHelper;
+    private final ImageService imageService;
+    private final ImagesMapper imagesMapper;
+
     public void postParentComment(Integer account, String content, Integer postId) {
         Userdata userdata =  userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
         Comment comment = Comment.builder().userId(userdata.getUserId()).parentCommentId(0).postId(postId).content(content).build();
@@ -41,4 +48,5 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = Comment.builder().userId(userdata.getUserId()).parentCommentId(1).followingid(followingId).postId(postId).content(content).build();
         commentMapper.insert(comment);
     }
+
 }

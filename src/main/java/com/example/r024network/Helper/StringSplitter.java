@@ -1,7 +1,5 @@
-package com.example.r024network.StringHelper;
-import java.util.ArrayList;
+package com.example.r024network.Helper;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class StringSplitter {

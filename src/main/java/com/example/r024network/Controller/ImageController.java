@@ -32,7 +32,7 @@ public class ImageController {
     }
 
     @PutMapping("/updateHead")
-    public AjaxResult<Object> updateHead(@Valid @RequestBody MultipartFile file, Integer account){
+    public AjaxResult<Object> updateHead(@Valid @RequestParam MultipartFile file, Integer account){
         if (file == null){
             throw new APIException(410, "文件不能为空");
         }
