@@ -128,6 +128,7 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+
     public void postWithImageParentComment(Integer user_account, String title, String content, Integer isAnonymous, List<MultipartFile> imageFiles) {
         if (imageFiles == null || imageFiles.isEmpty()){
             throw new APIException(7, "不能为空");

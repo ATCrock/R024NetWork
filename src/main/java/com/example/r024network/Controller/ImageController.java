@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageController {
     @Resource
     private ImageService imageService;
-    private ImagesMapper imagesMapper;
 
     @PostMapping(value = "/save", consumes ="multipart/form-data")
     public AjaxResult<Object> save(@Valid @RequestBody MultipartFile file){
@@ -36,6 +35,7 @@ public class ImageController {
         if (file == null){
             throw new APIException(410, "文件不能为空");
         }
+
         try{
             String path = imageService.storeFile(file);
             if (path != null) {

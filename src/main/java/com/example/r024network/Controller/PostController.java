@@ -2,9 +2,10 @@ package com.example.r024network.Controller;
 
 import com.example.r024network.Exception.APIException;
 import com.example.r024network.Result.AjaxResult;
+import com.example.r024network.Service.CommentService;
 import com.example.r024network.Service.PostService;
-import com.example.r024network.Service.UserService;
 import com.example.r024network.dto.*;
+import com.example.r024network.entity.Comment;
 import com.example.r024network.entity.Postdata;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -20,7 +21,10 @@ import java.util.List;
 public class PostController {
     @Resource
     private PostService postService;
+    @Resource
+    private CommentService commentService;
     Postdata[] postdata;
+    Comment[] comments;
     @PostMapping("/post")
     public AjaxResult<PostRequest> register(@Valid @RequestBody PostRequest postRequest){
         try{
@@ -69,6 +73,17 @@ public class PostController {
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }
         return AjaxResult.success();
+    }
+
+    @GetMapping("/get_post_and_comments")
+    public AjaxResult<Object[]> getPostAndComments(@Valid @RequestBody PostRequest postRequest){
+        try{
+            this.postdata = postService.getAllPost(postRequest.getAccount());
+            this.comments = commentService.listAllComment(postRequest.getPostId()).toArray(new Comment[0]);
+        }catch (APIException e){
+            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
+        }
+        return AjaxResult.success(postdata, comments);
     }
 
 }

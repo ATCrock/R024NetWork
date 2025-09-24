@@ -35,6 +35,9 @@ public class AjaxResult<T>{
     private Integer code;
     private String message;
     private T user_data;
+    private T user_data2;
+
+
     //private boolean isShowData;
 
     //private T data;
@@ -42,17 +45,21 @@ public class AjaxResult<T>{
 
 
     public static <N> AjaxResult<N> success() {
-        return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, null);
+        return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, null, null);
     }
 
     public static <N> AjaxResult<N> success(N user_data) {
-        return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, user_data);
+        return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, user_data, null);
+    }
+
+    public static <N> AjaxResult<N> success(N user_data1, N user_data2) {
+        return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, user_data1, user_data2);
     }
 
     public static <N> AjaxResult<N> fail(String errorMessage) {
-        return new AjaxResult<>(HttpStatus.OK.value(), errorMessage, null);
+        return new AjaxResult<>(HttpStatus.OK.value(), errorMessage, null, null);
     }
     public static <N> AjaxResult<N> fail(Integer statusCode, String errorMessage) {
-        return new AjaxResult<>(statusCode, errorMessage, null);
+        return new AjaxResult<>(statusCode, errorMessage, null, null);
     }
 }

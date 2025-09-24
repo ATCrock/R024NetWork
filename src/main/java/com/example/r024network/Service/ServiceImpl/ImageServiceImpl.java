@@ -56,7 +56,7 @@ public class ImageServiceImpl implements ImageService {
         if (this.fileStorageLocation == null) {
             setFileStorageLocation("./localStorage/data/image");
         }
-        String subDirectory = "data/image";
+        //String subDirectory = "./localStorage/data/image";
         if (file == null) {
             throw new APIException(11, "上传的文件不能为null");
         }
@@ -71,21 +71,21 @@ public class ImageServiceImpl implements ImageService {
             String fileExtension = getFileExtensionFromContentType(file.getContentType());
             fileName = "file_" + System.currentTimeMillis() + fileExtension;
         } else {
-            fileName = String.valueOf(UUID.randomUUID());
+            fileName = UUID.randomUUID() + getFileExtensionFromContentType(file.getContentType());
             // 统一文件路径，把\斜杠统一换成/
         }
         try {
             if (fileName.contains("..")) {
                 throw new APIException(12, "包含非法路径: " + fileName);
             }
-            Path targetPath = this.fileStorageLocation.resolve(subDirectory);
+            Path targetPath = this.fileStorageLocation.resolve(this.fileStorageLocation);
             Files.createDirectories(targetPath);
             Path targetFile = targetPath.resolve(fileName);
             Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
             Images image = new Images();
             image.setFileName(fileName);
             Images imageStatic = imagesMapper.selectOne(warpperHelper.convert("file_name", fileName));
-            Path path = Paths.get(subDirectory, fileName);
+            Path path = Paths.get(String.valueOf(this.fileStorageLocation), fileName);
             if (imageStatic == null || !Objects.equals(imageStatic.getFileName(), fileName)) { // 先判断是否为null，如果不是null再获取文件名，与给定文件名对比，不同就保存新图片，相同就返回已有文件路径
                 image.setFilePath(path.toString());
                 image.setFileSize(String.valueOf(file.getSize()));
