@@ -38,9 +38,10 @@ public class PostController {
     }
 
     @PutMapping("/rewrite_post")
-    public AjaxResult<PostRequest> rewritePost(@Valid @RequestBody PostRequest postRequest){
+    public AjaxResult<PostRequest> rewritePost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
         try{
-            postService.rewritePost(postRequest.getPostId(), postRequest.getAccount(),postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous());
+            postService.rewritePost(postRequest.getPostId(), userAccount,postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous());
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }
@@ -48,9 +49,10 @@ public class PostController {
     }
 
     @DeleteMapping("/delete")
-    public AjaxResult<PostRequest> deletePost(@Valid @RequestBody PostRequest postRequest){
+    public AjaxResult<PostRequest> deletePost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
         try{
-            postService.deletePost(postRequest.getPostId(), postRequest.getAccount());
+            postService.deletePost(postRequest.getPostId(), userAccount);
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }
@@ -58,9 +60,10 @@ public class PostController {
     }
 
     @GetMapping("/get")
-    public AjaxResult<Postdata[]> getPost(@Valid @RequestBody PostRequest postRequest){
+    public AjaxResult<Postdata[]> getPost(@Valid @RequestBody HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
         try{
-            this.postdata = postService.getAllPost(postRequest.getAccount());
+            this.postdata = postService.getAllPost(userAccount);
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }
@@ -68,7 +71,7 @@ public class PostController {
     }
 
     @PostMapping(value = "/post_with_images", consumes ="multipart/form-data")
-    public AjaxResult<Object> postWithImages(@Valid @RequestParam Integer user_account, String title, String content, Integer is_public, List<MultipartFile> files){
+    public AjaxResult<Object> postWithImages(@Valid @RequestParam Integer user_account, String title, String content, Integer is_public, List<MultipartFile> files, HttpServletRequest request){
         try {
             postService.postWithImageParentComment(user_account, title, content, is_public, files);
         }catch (APIException e){
@@ -78,7 +81,7 @@ public class PostController {
     }
 
     @GetMapping("/get_post_and_comments")
-    public AjaxResult<Object[]> getPostAndComments(@Valid @RequestBody PostRequest postRequest){
+    public AjaxResult<Object[]> getPostAndComments(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         try{
             this.postdata = postService.getAllPost(postRequest.getAccount());
             this.comments = commentService.listAllComment(postRequest.getPostId()).toArray(new Comment[0]);

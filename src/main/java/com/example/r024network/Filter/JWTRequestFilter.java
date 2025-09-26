@@ -27,21 +27,18 @@ public class JWTRequestFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 提取 Authorization 头
         String authHeader = request.getHeader("Authorization");
-
-        // 如果没有 Authorization 头或格式不正确
+        // 如果没有Authorization或格式不正确
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             sendUnauthorizedResponse(response, "Missing or invalid Authorization header");
             return;
         }
 
-        // 提取 JWT Token
+        // 提取JWT Token
         String token = authHeader.substring(7);
 
         try {
-            // 验证 JWT Token
+            // 验证JWT Token
             JWTTokenUtil.JwtValidationResult validationResult = jwtTokenUtil.validateJWT(token);
 
             if (!validationResult.isValid()) {

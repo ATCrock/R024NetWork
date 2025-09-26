@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void pullBlack(String userAccount, String targetAccount){
+    public void pullBlack(Integer userAccount, Integer targetAccount){
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", userAccount));
         // 获取userData
         Userdata targetdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", targetAccount));
@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void pullWhite(String userAccount, String targetAccount){
+    public void pullWhite(Integer userAccount, Integer targetAccount){
         // 获取用户账号与目标账号，如果存在进行下一步
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", userAccount));
         Userdata targetdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", targetAccount));
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int[] getBlack(String userAccount){
+    public int[] getBlack(Integer userAccount){
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", userAccount));
         return stringSplitter.splitToIntArray(userdata.getBlackList());
     }

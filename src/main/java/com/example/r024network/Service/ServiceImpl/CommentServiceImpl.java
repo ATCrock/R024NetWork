@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +34,18 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.selectList(wrapperHelper.convert("post_id", postId));
     }
 
-    public void deleteComment(Integer commentId) {
+    public void deleteComment(Integer userId, Integer commentId) {
+        // 还没有判断是否是自己账号才能删除评论
+        Userdata userdata =  userdataMapper.selectOne(wrapperHelper.convert("user_id", userId));
         Comment comment = commentMapper.selectOne(wrapperHelper.convert("comment_id", commentId));
         if (comment == null){
             throw new APIException(410, "评论不存在");
         }
-        commentMapper.delete(wrapperHelper.convert("comment_id", commentId));
+        if (Objects.equals(userId, comment.getUserId())) {
+            commentMapper.delete(wrapperHelper.convert("comment_id", commentId));
+            //throw new APIException(418, "")
+        }
+        //commentMapper.delete(wrapperHelper.convert("comment_id", commentId));
     }
 
     public void postFollowComment(Integer account, String content, Integer postId, Integer followingId) {

@@ -10,9 +10,9 @@ import lombok.*;
 @NoArgsConstructor
 public class PullBorWListRequest {
     @JsonProperty("user_account")
-    private String userAccount;
+    private Integer userAccount;
     @JsonProperty("target_account")
-    private String targetAccount;
+    private Integer targetAccount;
 
 
 }

@@ -50,22 +50,11 @@ public class UserController {
         return AjaxResult.success(token);
     }
 
-//    @GetMapping("login_refresh")
-//    public AjaxResult<String> loginByToken(HttpServletRequest request, HttpServletResponse response){
-//        try {
-//            jwtRequestFilter.doFilterInternal(request, response);
-//        } catch (APIException e) {
-//            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-//        } catch (ServletException | IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        return AjaxResult.success();
-//    }
-
     @PutMapping("/update")
-    public AjaxResult<UpadteInformationRequest> updateUserInformation(@Valid @RequestBody UpadteInformationRequest upadteInformationRequest) {
+    public AjaxResult<UpadteInformationRequest> updateUserInformation(@Valid @RequestBody UpadteInformationRequest upadteInformationRequest, HttpServletRequest request) {
+        String userAccount = (String) request.getAttribute("user_account");
         try {
-            userService.updateUserInformation(upadteInformationRequest.getPrevAccount(), upadteInformationRequest.getLatestUserAccount(),
+            userService.updateUserInformation(userAccount, upadteInformationRequest.getLatestUserAccount(),
                     upadteInformationRequest.getUserName(), upadteInformationRequest.getPassword());
         } catch (APIException e) {
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
@@ -74,9 +63,10 @@ public class UserController {
     }
 
     @PostMapping("/pull_black")
-    public AjaxResult<PullBorWListRequest> pullBlack(@Valid @RequestBody PullBorWListRequest pullBorWListRequest){
+    public AjaxResult<PullBorWListRequest> pullBlack(@Valid @RequestBody PullBorWListRequest pullBorWListRequest, HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
         try{
-            userService.pullBlack(pullBorWListRequest.getUserAccount(), pullBorWListRequest.getTargetAccount());
+            userService.pullBlack(userAccount, pullBorWListRequest.getTargetAccount());
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }
@@ -84,15 +74,13 @@ public class UserController {
     }
 
     @PostMapping("/pull_white")
-    public AjaxResult<PullBorWListRequest> pullWhite(@Valid @RequestBody PullBorWListRequest pullBorWListRequest){
+    public AjaxResult<PullBorWListRequest> pullWhite(@Valid @RequestBody PullBorWListRequest pullBorWListRequest, HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
         try{
-            userService.pullWhite(pullBorWListRequest.getUserAccount(), pullBorWListRequest.getTargetAccount());
+            userService.pullWhite(userAccount, pullBorWListRequest.getTargetAccount());
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }
         return AjaxResult.success();
     }
-
-//    @PostMapping("/update_pic")
-//    public AjaxResult<>
 }

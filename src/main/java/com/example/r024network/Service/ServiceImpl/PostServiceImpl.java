@@ -123,8 +123,8 @@ public class PostServiceImpl implements PostService {
             List<Postdata> postList = postdataMapper.selectList(null);
             Postdata[] retPostdata = new Postdata[postList.size()];
             int count = 0;
-            int[] blackList = userService.getBlack(String.valueOf(account));
-            blackList = Arrays.copyOf(userService.getBlack(String.valueOf(account)), blackList.length);
+            int[] blackList = userService.getBlack(account);
+            blackList = Arrays.copyOf(userService.getBlack(account), blackList.length);
             for (Postdata postdata : postList) {
                 if (binarySearch(blackList, postdata.getUserId()) == -1) {         // -1相当于没找到对应用户id
                     if (postdata.getPublicOrPrivate() == 0) {         // 如果发帖子的人不在用户黑名单里面
