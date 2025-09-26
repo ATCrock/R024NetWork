@@ -8,6 +8,7 @@ import com.example.r024network.dto.*;
 import com.example.r024network.entity.Comment;
 import com.example.r024network.entity.Postdata;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +27,10 @@ public class PostController {
     Postdata[] postdata;
     Comment[] comments;
     @PostMapping("/post")
-    public AjaxResult<PostRequest> register(@Valid @RequestBody PostRequest postRequest){
+    public AjaxResult<PostRequest> register(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
         try{
-            postService.postSingleConfession(postRequest.getAccount(),postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous());
+            postService.postSingleConfession(userAccount,postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous());
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }

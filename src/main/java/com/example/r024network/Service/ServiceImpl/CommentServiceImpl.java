@@ -22,8 +22,6 @@ public class CommentServiceImpl implements CommentService {
     private final UserdataMapper userdataMapper;
     private final CommentMapper commentMapper;
     private final WrapperHelper wrapperHelper;
-    private final ImageService imageService;
-    private final ImagesMapper imagesMapper;
 
     public void postParentComment(Integer account, String content, Integer postId) {
         Userdata userdata =  userdataMapper.selectOne(wrapperHelper.convert("user_account", account));

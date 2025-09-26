@@ -1,15 +1,19 @@
 package com.example.r024network.Service.ServiceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.r024network.Filter.JWTRequestFilter;
 import com.example.r024network.Helper.StringSplitter;
 import com.example.r024network.entity.Userdata;
 import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.UserService;
+import com.example.r024network.jwt.JWTTokenUtil;
 import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +22,7 @@ public class UserServiceImpl implements UserService {
     private final UserdataMapper userdataMapper;
     private final StringSplitter stringSplitter = new StringSplitter();
     private final WrapperHelper  wrapperHelper = new WrapperHelper();
+    private JWTRequestFilter jwtRequestFilter;
 
     @Override
     public void register(String userAccount, String userName, String password, Integer userType){
@@ -32,18 +37,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void login(String userAccount, String password){
+    public String login(String userAccount, String password){
         QueryWrapper<Userdata> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_account",userAccount);
         queryWrapper.eq("user_password",password); // 检索用户密码同时对应的用户
         Userdata userdata = userdataMapper.selectOne(queryWrapper);
         if (userdata==null){
             throw new APIException(402, "账号或密码错误");
+        }else  {
+            return JWTTokenUtil.generateToken(userAccount, userdata.getUserId());
         }
     }
 
     @Override
     public void updateUserInformation(String previousUserAccount, String newUserAccount, String newUserName, String newPassword){
+
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", previousUserAccount));
         if (userdata==null){
             throw new APIException(410, "未找到该账号");
@@ -103,5 +111,10 @@ public class UserServiceImpl implements UserService {
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", userAccount));
         return stringSplitter.splitToIntArray(userdata.getBlackList());
     }
+
+//    @Override
+//    public void loginByToken(String token) {
+//        jwtRequestFilter.doFilterInternal();
+//    }
 
 }

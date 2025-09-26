@@ -46,6 +46,22 @@ public class PostServiceImpl implements PostService {
     }
 
 
+//    @Override
+//    public void postSingleConfession(Integer account, String title, String content, Integer isAnonymous){
+//        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
+//        if (title.isBlank() || content.isBlank()){
+//            throw new APIException(413, "标题或内容不能为空");
+//        }
+//        // 1为公开，0为匿名
+//        if (! (isAnonymous == 1 || isAnonymous == 0) ){
+//            throw new APIException(420, "不支持的格式，0为匿名，1为显示名字");
+//        }
+//        else{
+//            postdataMapper.insert(Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(account)).userName(userdata.getUserName()).content(content).publicOrPrivate(isAnonymous).build());
+//        }
+//    }
+
+
     @Override
     public void postSingleConfession(Integer account, String title, String content, Integer isAnonymous){
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
@@ -57,7 +73,7 @@ public class PostServiceImpl implements PostService {
             throw new APIException(420, "不支持的格式，0为匿名，1为显示名字");
         }
         else{
-            postdataMapper.insert(Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(account)).userName(userdata.getUserName()).content(content).publicOrPrivate(isAnonymous).build());
+            postdataMapper.insert(Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).build());
         }
     }
 
