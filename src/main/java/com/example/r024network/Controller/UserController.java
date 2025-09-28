@@ -25,9 +25,11 @@ import java.io.IOException;
 public class UserController {
     @Resource
     private UserService userService;
-    @Resource
-    private JWTRequestFilter jwtRequestFilter;
 
+    /** 注册
+     * @param registerRequest 注册需要的json流
+     * @return {@link AjaxResult }
+     */
     @PostMapping("/register")
     public AjaxResult<RegisterRequest> register(@Valid @RequestBody RegisterRequest registerRequest){
         try {
@@ -39,6 +41,11 @@ public class UserController {
     }
 
 
+    /** 登录
+     * @param loginRequest 登录需要的json流
+     * 登录后会在user_data中返回jwt token，作为后续大部分接口验证的字段
+     * @return {@link AjaxResult }>
+     */
     @GetMapping("/login")
     public AjaxResult<String> login(@Valid @RequestBody LoginRequest loginRequest){
         String token;
@@ -50,6 +57,12 @@ public class UserController {
         return AjaxResult.success(token);
     }
 
+
+    /**更新个人信息
+     * @param upadteInformationRequest 更新个人信息需要的json流
+     * @param request 前后端网络请求
+     * @return {@link AjaxResult }<{@link UpadteInformationRequest }>
+     */
     @PutMapping("/update")
     public AjaxResult<UpadteInformationRequest> updateUserInformation(@Valid @RequestBody UpadteInformationRequest upadteInformationRequest, HttpServletRequest request) {
         String userAccount = (String) request.getAttribute("user_account");
@@ -62,6 +75,12 @@ public class UserController {
         return AjaxResult.success();
     }
 
+
+    /** 拉黑
+     * @param pullBorWListRequest 拉黑需要的json流(和取消拉黑共用
+     * @param request 前后端网络请求
+     * @return {@link AjaxResult }<{@link PullBorWListRequest }>
+     */
     @PostMapping("/pull_black")
     public AjaxResult<PullBorWListRequest> pullBlack(@Valid @RequestBody PullBorWListRequest pullBorWListRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
@@ -73,6 +92,11 @@ public class UserController {
         return AjaxResult.success();
     }
 
+    /** 取消拉黑
+     * @param pullBorWListRequest 取消拉黑需要的json流(和拉黑共用
+     * @param request 前后端网络请求
+     * @return {@link AjaxResult }
+     */
     @PostMapping("/pull_white")
     public AjaxResult<PullBorWListRequest> pullWhite(@Valid @RequestBody PullBorWListRequest pullBorWListRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");

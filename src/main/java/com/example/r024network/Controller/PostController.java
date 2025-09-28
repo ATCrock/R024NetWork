@@ -26,8 +26,14 @@ public class PostController {
     private CommentService commentService;
     Postdata[] postdata;
     Comment[] comments;
+
+    /**只发帖子（后续考虑与带图片发帖子合并）
+     * @param postRequest 帖子的json流（用户账号在jwt中存储，需要输入标题，文本，是否匿名）
+     * @param request 前后端网络请求，包含jwt
+     * @return {@link AjaxResult }
+     */
     @PostMapping("/post")
-    public AjaxResult<PostRequest> register(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
+    public AjaxResult<PostRequest> post(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
         try{
             postService.postSingleConfession(userAccount,postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous());
@@ -37,17 +43,27 @@ public class PostController {
         return AjaxResult.success();
     }
 
+    /**修改帖子
+     * @param postRequest 帖子的json流（用户账号在jwt中存储，需要输入标题，文本，是否匿名，帖子id通过选择帖子来获取）
+     * @param request 前后端网络请求，包含jwt
+     * @return {@link AjaxResult }
+     */
     @PutMapping("/rewrite_post")
     public AjaxResult<PostRequest> rewritePost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
         try{
-            postService.rewritePost(postRequest.getPostId(), userAccount,postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous());
+            postService.rewritePost(postRequest.getPostId(), userAccount, postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous());
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }
         return  AjaxResult.success();
     }
 
+    /**删除帖子
+     * @param postRequest 帖子的json流（用户账号在jwt中存储，帖子id通过选择帖子来获取）
+     * @param request 前后端网络请求，包含jwt
+     * @return {@link AjaxResult }
+     */
     @DeleteMapping("/delete")
     public AjaxResult<PostRequest> deletePost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
@@ -59,6 +75,10 @@ public class PostController {
         return  AjaxResult.success();
     }
 
+    /**获取当前账号帖子
+     * @param request 前后端网络请求，包含jwt
+     * @return {@link AjaxResult }
+     */
     @GetMapping("/get")
     public AjaxResult<Postdata[]> getPost(@Valid @RequestBody HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
@@ -70,6 +90,15 @@ public class PostController {
         return AjaxResult.success(postdata);
     }
 
+
+    /**发带图片的帖子
+     * @param title 标题
+     * @param content 文本
+     * @param is_public 是否匿名
+     * @param files 图片文件流
+     * @param request 前后端网络请求
+     * @return {@link AjaxResult }
+     */
     @PostMapping(value = "/post_with_images", consumes ="multipart/form-data")
     public AjaxResult<Object> postWithImages(@Valid @RequestParam String title, String content, Integer is_public, List<MultipartFile> files, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
@@ -81,6 +110,13 @@ public class PostController {
         return AjaxResult.success();
     }
 
+
+    /**
+     *
+     * @param postRequest 理论上只需要postId，通过前端获取
+     * @param request 前后端网络请求
+     * @return {@link AjaxResult }
+     */
     @GetMapping("/get_post_and_comments")
     public AjaxResult<Object[]> getPostAndComments(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");

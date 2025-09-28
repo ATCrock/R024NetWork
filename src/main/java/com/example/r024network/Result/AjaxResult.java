@@ -3,6 +3,9 @@ package com.example.r024network.Result;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
+/**
+ * @date 2025/09/28
+ */
 @Getter
 @Setter
 @Data

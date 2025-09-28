@@ -18,6 +18,12 @@ public class ImageController {
     @Resource
     private ImageService imageService;
 
+
+    /**保存图片（这个接口一般不单独使用，与其他接口混合或包含于其他接口）
+     不需要jwt验证
+     * @param file 前端传后端的图片文件流
+     * @return {@link AjaxResult }
+     */
     @PostMapping(value = "/save", consumes ="multipart/form-data")
     public AjaxResult<Object> save(@Valid @RequestBody MultipartFile file){
         if (file == null){
@@ -31,6 +37,11 @@ public class ImageController {
         return AjaxResult.success();
     }
 
+    /** 更新头像
+     * @param file 前端传后端的图片文件流
+     * @param request 前端后端网络请求（需要jwt
+     * @return {@link AjaxResult }
+     */
     @PutMapping("/updateHead")
     public AjaxResult<Object> updateHead(@Valid @RequestParam MultipartFile file, HttpServletRequest request){
         if (file == null){
