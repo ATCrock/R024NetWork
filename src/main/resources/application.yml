@@ -16,6 +16,6 @@ server:
 jwt:
   secret: LmPkEAze5jbwndNh/INYLrUMu51113Mz3N8QejiVnuE=
 file:
-  upload-dir: ./localStorage/data/image
+  upload-dir: /localStorage/data/image
 
 

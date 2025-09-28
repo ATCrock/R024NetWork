@@ -146,30 +146,31 @@ public class PostServiceImpl implements PostService {
 
 
     public void postWithImageParentComment(Integer user_account, String title, String content, Integer isAnonymous, List<MultipartFile> imageFiles) {
-        if (imageFiles == null || imageFiles.isEmpty()){
-            throw new APIException(7, "不能为空");
-        }else if(imageFiles.size() > 9){
+        if(imageFiles.size() > 9){
             throw new APIException(6, "不能上传大于9张图");
         }else {
-        String[] filePath = new String[imageFiles.size()];
-        int count = 0;
-        for(MultipartFile file : imageFiles){
-            filePath[count] = imageService.storeFile(file);
-            count++;
+            String[] fileNameArrays = new String[imageFiles.size()];
+            int count = 0;
+            for(MultipartFile file : imageFiles){
+                String tempFileC = imageService.storeFile(file);
+                if (tempFileC != null){
+                    fileNameArrays[count] = imageService.storeFile(file);
+                    count++;
+            }
         }
-        if (filePath.length < 1){
-            throw new APIException(5, "图片为空");
-        }
-        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", user_account));
-        Postdata postdata = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).build();
-        postdataMapper.insert(postdata);
-        count = 0;
-        for (int i = 0; i < imageFiles.size(); i++) {
-            Images images = imagesMapper.selectOne(wrapperHelper.convert("file_path", filePath[i]));
-            images.setUserId(userdata.getUserId());
-            images.setPostId(postdata.getPostId());
-            imagesMapper.insertOrUpdate(images);
-            count++;
+
+        if (fileNameArrays[0] != null){
+            Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", user_account));
+            Postdata postdata = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).build();
+            postdataMapper.insert(postdata);
+            count = 0;
+            for (int i = 0; i < imageFiles.size(); i++) {
+                Images images = imagesMapper.selectOne(wrapperHelper.convert("file_name", fileNameArrays[i]));
+                images.setUserId(userdata.getUserId());
+                images.setPostId(postdata.getPostId());
+                imagesMapper.insertOrUpdate(images);
+                count++;
+                }
             }
         }
     }

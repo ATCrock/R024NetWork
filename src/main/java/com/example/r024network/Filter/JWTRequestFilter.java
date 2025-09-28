@@ -36,29 +36,24 @@ public class JWTRequestFilter extends OncePerRequestFilter {
 
         // 提取JWT Token
         String token = authHeader.substring(7);
-
-        try {
             // 验证JWT Token
-            JWTTokenUtil.JwtValidationResult validationResult = jwtTokenUtil.validateJWT(token);
+        JWTTokenUtil.JwtValidationResult validationResult = jwtTokenUtil.validateJWT(token);
 
-            if (!validationResult.isValid()) {
+        if (!validationResult.isValid()) {
                 sendUnauthorizedResponse(response, validationResult.getMessage());
                 return;
-            }
+        }
 
             // Token有效，将用户信息存入请求属性
-            Integer userAccount = Integer.valueOf(jwtTokenUtil.getUsernameFromToken(token));
-            Integer userId = jwtTokenUtil.getUserIdFromToken(token);
+        Integer userAccount = Integer.valueOf(jwtTokenUtil.getUsernameFromToken(token));
+        Integer userId = jwtTokenUtil.getUserIdFromToken(token);
 
-            request.setAttribute("user_account", userAccount);
-            request.setAttribute("userId", userId);
+        request.setAttribute("user_account", userAccount);
+        request.setAttribute("userId", userId);
 
-            filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response);
 
-        } catch (Exception e) {
-            logger.error("JWT verification error:", e);
-            sendUnauthorizedResponse(response, "Token verification failed");
-        }
+
     }
 
     /**
@@ -69,10 +64,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         // 公开接口不需要验证
         return path.startsWith("/apifox/user/login") ||
-                path.startsWith("/apifox/user/register") ||
-                path.startsWith("/swagger") ||
-                path.startsWith("/v3/api-docs") ||
-                path.startsWith("/webjars/");
+                path.startsWith("/apifox/user/register");
     }
 
     private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {

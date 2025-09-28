@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class WrapperHelper {
-
     public <T> QueryWrapper<T> convert(String wrapperItem, Integer data) {
         QueryWrapper<T> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(wrapperItem, data);

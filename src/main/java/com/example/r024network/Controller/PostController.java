@@ -71,9 +71,10 @@ public class PostController {
     }
 
     @PostMapping(value = "/post_with_images", consumes ="multipart/form-data")
-    public AjaxResult<Object> postWithImages(@Valid @RequestParam Integer user_account, String title, String content, Integer is_public, List<MultipartFile> files, HttpServletRequest request){
+    public AjaxResult<Object> postWithImages(@Valid @RequestParam String title, String content, Integer is_public, List<MultipartFile> files, HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
         try {
-            postService.postWithImageParentComment(user_account, title, content, is_public, files);
+            postService.postWithImageParentComment(userAccount, title, content, is_public, files);
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }
@@ -82,8 +83,9 @@ public class PostController {
 
     @GetMapping("/get_post_and_comments")
     public AjaxResult<Object[]> getPostAndComments(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
         try{
-            this.postdata = postService.getAllPost(postRequest.getAccount());
+            this.postdata = postService.getAllPost(userAccount);
             this.comments = commentService.listAllComment(postRequest.getPostId()).toArray(new Comment[0]);
         }catch (APIException e){
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
