@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class Postdata {
     @TableId(type = IdType.AUTO)
     @JsonProperty("post_id")
@@ -31,5 +32,7 @@ public class Postdata {
     private String content;
     @JsonProperty("is_public")
     private Integer publicOrPrivate;
-    private Integer comment_id;
+    private Integer status; // 1为待定时间发布，2为已发布
+    @JsonProperty("schedule_tick")
+    private Integer scheduleTick;
 }

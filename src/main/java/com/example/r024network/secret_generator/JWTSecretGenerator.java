@@ -1,7 +1,7 @@
 //package com.example.r024network.secret_generator;
 //import java.security.SecureRandom;
 //import java.util.Base64;
-//
+////一个用来生成JWT测试的类
 //public class JWTSecretGenerator {
 //    public static void main(String[] args) {
 //        SecureRandom random = new SecureRandom();
@@ -11,4 +11,4 @@
 //        System.out.println(secret);
 //    }
 //}
-//
+

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SecurityConfig {
+    // 设置jwt
     @Bean
     public FilterRegistrationBean<JWTRequestFilter> jwtFilter(JWTRequestFilter jwtRequestFilter) {
         FilterRegistrationBean<JWTRequestFilter> registrationBean = new FilterRegistrationBean<>();

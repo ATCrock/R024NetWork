@@ -31,7 +31,7 @@ public class Images {
     private String fileName;
     @JsonProperty("file_size")
     private String fileSize;
-    @JsonProperty("file_type")
+    @JsonProperty("file_SHA256")
     private String fileType;
     @JsonProperty("is_protract")
     private Integer isAvator;

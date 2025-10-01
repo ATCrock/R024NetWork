@@ -25,30 +25,31 @@ public class CommentServiceImpl implements CommentService {
     private final WrapperHelper wrapperHelper;
 
     public void postParentComment(Integer account, String content, Integer postId) {
+        // 发表回复帖子的评论
         Userdata userdata =  userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
+        // parentCommentId中0代表基层评论，1代表跟随评论
         Comment comment = Comment.builder().userId(userdata.getUserId()).parentCommentId(0).postId(postId).content(content).build();
         commentMapper.insert(comment);
     }
 
     public List<Comment> listAllComment(Integer postId) {
+        // 把对应帖子id下所有评论列出来
         return commentMapper.selectList(wrapperHelper.convert("post_id", postId));
     }
 
     public void deleteComment(Integer userId, Integer commentId) {
-        // 还没有判断是否是自己账号才能删除评论
-        Userdata userdata =  userdataMapper.selectOne(wrapperHelper.convert("user_id", userId));
         Comment comment = commentMapper.selectOne(wrapperHelper.convert("comment_id", commentId));
         if (comment == null){
             throw new APIException(410, "评论不存在");
         }
         if (Objects.equals(userId, comment.getUserId())) {
+            // 匹配用户id与评论的用户id，成功就删掉
             commentMapper.delete(wrapperHelper.convert("comment_id", commentId));
-            //throw new APIException(418, "")
         }
-        //commentMapper.delete(wrapperHelper.convert("comment_id", commentId));
     }
 
     public void postFollowComment(Integer account, String content, Integer postId, Integer followingId) {
+        // 发表回复评论的评论
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
         Comment comment = Comment.builder().userId(userdata.getUserId()).parentCommentId(1).followingid(followingId).postId(postId).content(content).build();
         commentMapper.insert(comment);

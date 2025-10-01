@@ -36,29 +36,24 @@ public class JWTRequestFilter extends OncePerRequestFilter {
 
         // 提取JWT Token
         String token = authHeader.substring(7);
-            // 验证JWT Token
+        // 验证JWT Token
         JWTTokenUtil.JwtValidationResult validationResult = jwtTokenUtil.validateJWT(token);
 
-        if (!validationResult.isValid()) {
-                sendUnauthorizedResponse(response, validationResult.getMessage());
+        if (!validationResult.valid()) {
+                sendUnauthorizedResponse(response, validationResult.message());
                 return;
         }
 
-            // Token有效，将用户信息存入请求属性
+        // Token有效，将用户信息存入请求属性
         Integer userAccount = Integer.valueOf(jwtTokenUtil.getUsernameFromToken(token));
         Integer userId = jwtTokenUtil.getUserIdFromToken(token);
-
         request.setAttribute("user_account", userAccount);
         request.setAttribute("userId", userId);
-
         filterChain.doFilter(request, response);
 
 
     }
 
-    /**
-     * 配置不需要JWT验证的路径
-     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
@@ -68,6 +63,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
     }
 
     private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
+        // 处理前端响应并返回无响应头报错
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

@@ -4,8 +4,9 @@ import com.example.r024network.entity.Postdata;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
+* @author yuziyang
 * @description 针对表【postdata】的数据库操作Mapper
-* @createDate 2025-09-17 19:07:57
+* @createDate 2025-09-30 09:55:59
 * @Entity com.example.r024network.entity.Postdata
 */
 public interface PostdataMapper extends BaseMapper<Postdata> {
