@@ -50,8 +50,6 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         request.setAttribute("user_account", userAccount);
         request.setAttribute("userId", userId);
         filterChain.doFilter(request, response);
-
-
     }
 
     @Override

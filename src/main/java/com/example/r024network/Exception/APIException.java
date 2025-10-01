@@ -18,4 +18,6 @@ public class APIException extends RuntimeException{
         this.statusCode = statusCode;
         this.errorMessage = errorMessage;
     }
+
+
 }

@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -104,7 +107,9 @@ public class PostServiceImpl implements PostService {
         if (userdata == null){
             throw new APIException(410, "未找到该账号");
         }else {
-            List<Postdata> postList = postdataMapper.selectList(null);
+            QueryWrapper<Postdata>  queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("status",2); // 只查询已经发布的帖子
+            List<Postdata> postList = postdataMapper.selectList(queryWrapper);
             Postdata[] retPostdata = new Postdata[postList.size()];// 扫到几个就给几个位置
             int count = 0;// 循环变量
             int[] blackList = userService.getBlack(account);
@@ -155,15 +160,34 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    public void scheduledPost(Integer user_account, String title, String content, Integer isAnonymous, Integer publishTime){
-        Postdata post = Postdata.builder().userId(user_account).title(title).content(content).publicOrPrivate(isAnonymous).status(1).scheduleTick(publishTime).build();
+    public void scheduledPost(Integer user_account, String title, String content, Integer isAnonymous, Date publishTime){
+        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", user_account));
+        Postdata post = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).status(1).scheduleTick(publishTime).build();
+        // 标记为定时发布, schedule_tick为秒数（date是毫秒数）
         postdataMapper.insert(post);
     }
 
     public void checkScheduledPost(){
         QueryWrapper<Postdata> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", 1).le("schedule_tick", new Date());// 获取未发布帖子，对比时间
+        List<Postdata> scheduledPosts = postdataMapper.selectList(queryWrapper);
+        if(scheduledPosts.isEmpty()){
+            throw new APIException(410, "没有找到对应帖子");
+        }
+        for(Postdata postdata : scheduledPosts){
+            postdata.setStatus(2);
+            postdataMapper.updateById(postdata);
+        }
+
         // le:less than or equal;
         // ge:greater than or equal;
+    }
+
+    public Date addTime(Date date, Integer addingHour, Integer addingMinute){
+        LocalDateTime localDateTime = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        localDateTime = localDateTime.plusHours(addingHour).plusMinutes(addingMinute);
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

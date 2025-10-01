@@ -17,4 +17,9 @@ public class PostRequest {
     private String content;
     @JsonProperty("is_public")
     private Integer isAnonymous;
+    @JsonProperty("hour")
+    private Integer addingHour;
+    @JsonProperty("minute")
+    private Integer addingMinute;
+
 }

@@ -10,6 +10,27 @@ spring:
     multipart:
       max-file-size: 4MB
       max-request-size: 4MB
+  quartz:
+    job-store-type: memory
+    wait-for-jobs-to-complete-on-shutdown: true # 关闭时等待任务完成
+    overwrite-existing-jobs: true
+#    jdbc:
+#      initialize-schema: never
+#    properties:
+#      org:
+#        quartz:
+#          scheduler:
+#            instanceName: scheduler
+#            instanceId: AUTO
+#          jobStore:
+#            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+#            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+#            tablePrefix: QRTZ_
+#            useProperties: false
+#          threadPool:
+#            threadCount: 10
+#            threadPriority: 5
+#            class: org.quartz.simpl.SimpleThreadPool
 server:
   port: 8080
 

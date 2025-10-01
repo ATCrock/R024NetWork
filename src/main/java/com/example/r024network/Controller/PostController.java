@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -129,4 +130,23 @@ public class PostController {
         return AjaxResult.success(postdata, comments);
     }
 
+    @PostMapping("scheduled_post")
+    public AjaxResult<Postdata> postScheduledPost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
+        try{
+            Date date = new Date();
+            date = postService.addTime(date, postRequest.getAddingHour(), postRequest.getAddingMinute());
+            postService.scheduledPost(userAccount, postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous(),date);
+        }catch (APIException e){
+            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
+        }
+        return AjaxResult.success();
+
+    }
+
+//    @GetMapping
+//    public AjaxResult<Postdata> checkScheduledPost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
+//        Integer userAccount = (Integer) request.getAttribute("user_account");
+//
+//    }
 }

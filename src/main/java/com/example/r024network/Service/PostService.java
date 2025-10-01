@@ -2,6 +2,7 @@ package com.example.r024network.Service;
 import com.example.r024network.entity.Postdata;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 
 public interface PostService {
@@ -10,4 +11,7 @@ public interface PostService {
     void deletePost(Integer account, Integer postId);
     Postdata[] getAllPost(Integer account);
     void postWithImageParentComment(Integer user_account, String title, String content, Integer isAnonymous, List<MultipartFile> imageFiles);
+    void scheduledPost(Integer user_account, String title, String content, Integer isAnonymous, Date publishTime);
+    void checkScheduledPost();
+    Date addTime(Date date, Integer addingHour, Integer addingMinute);
 }

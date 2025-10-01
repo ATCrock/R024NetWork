@@ -1,5 +1,6 @@
 package com.example.r024network.entity;
 
+
 import lombok.Data;
 
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -9,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @TableName(value = "postdata")
 @Data
@@ -34,5 +37,5 @@ public class Postdata {
     private Integer publicOrPrivate;
     private Integer status; // 1为待定时间发布，2为已发布
     @JsonProperty("schedule_tick")
-    private Integer scheduleTick;
+    private Date scheduleTick;
 }
