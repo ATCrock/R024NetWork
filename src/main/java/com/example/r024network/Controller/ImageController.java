@@ -3,7 +3,6 @@ package com.example.r024network.Controller;
 import com.example.r024network.Exception.APIException;
 import com.example.r024network.Result.AjaxResult;
 import com.example.r024network.Service.ImageService;
-import com.example.r024network.mapper.ImagesMapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -48,13 +47,9 @@ public class ImageController {
             throw new APIException(410, "文件不能为空");
         }
         try{
-            String path = imageService.storeFile(file);
-            if (path != null) {
-                Integer userAccount = (Integer) request.getAttribute("user_account");
-                imageService.updateHeadPortraitDefault(path, userAccount);
-            }else {
-                return AjaxResult.fail(1, "头像上传失败");
-            }
+            String fileName = imageService.storeFile(file);
+            Integer user_id = (Integer) request.getAttribute("user_id");
+            imageService.updateHeadPortraitDefault(fileName, user_id);
         } catch (APIException e) {
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }

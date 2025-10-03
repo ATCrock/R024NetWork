@@ -1,25 +1,19 @@
 package com.example.r024network.Service.ServiceImpl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.r024network.Exception.APIException;
 import com.example.r024network.SHA256.Sha256Utils;
 import com.example.r024network.Service.ImageService;
 import com.example.r024network.entity.Images;
-import com.example.r024network.entity.Userdata;
 import com.example.r024network.mapper.ImagesMapper;
-import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -27,28 +21,15 @@ import java.util.UUID;
 public class ImageServiceImpl implements ImageService {
     private Path fileStorageLocation;
     private final ImagesMapper imagesMapper;
-    private final UserdataMapper userdataMapper;
     private final WrapperHelper wrapperHelper;
 
-    public void updateHeadPortraitDefault(@Value("${file.upload-dir}") String headAddress, Integer account) {
-        this.fileStorageLocation = Paths.get(headAddress).toAbsolutePath().normalize();
-        Images images = imagesMapper.selectOne(wrapperHelper.convert("file_path", headAddress));
-        if (images == null) {
-            throw new APIException(410, "没有对应图片");
-        }
-        Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
-        userdata.setUserHeadPortraitAddress(headAddress); // 设置用户头像地址
+    public void updateHeadPortraitDefault(String fileName, Integer userId) {
+        Images images = imagesMapper.selectOne(wrapperHelper.convert("file_name", fileName));
         // 设置为头像，非null(1)代表这张图是头像
         images.setIsAvator(1);
-        images.setUserId(userdata.getUserId());
-        // 更新用户信息
-        userdataMapper.insertOrUpdate(userdata);
+        images.setUserId(userId);
+        // 更新图片信息
         imagesMapper.insertOrUpdate(images);
-    }
-
-    private void setFileStorageLocation(String path){
-        // 绝对化路径
-        this.fileStorageLocation = Paths.get(path).toAbsolutePath().normalize();
     }
 
     public String storeFile(MultipartFile file) {
@@ -57,13 +38,14 @@ public class ImageServiceImpl implements ImageService {
         // 默认subDirectory = /localStorage/data/image
         String subDirectory = "localStorage/data/image";
         if (this.fileStorageLocation == null) {
-            setFileStorageLocation("./localStorage/data/image");
+            this.fileStorageLocation = Paths.get("./localStorage/data/image").toAbsolutePath().normalize();
+            // 改变存储路径没做了就
         }
         if (file == null) {
-            throw new APIException(11, "上传的文件不能为null");
+            throw new APIException(411, "上传的文件不能为null");
         }
         if (file.isEmpty()) {
-            throw new APIException(11, "上传的文件不能为空");
+            throw new APIException(411, "上传的文件不能为空");
         }
         String originalFilename = file.getOriginalFilename();
         // 获取文件原地址，包含盘符
@@ -78,7 +60,7 @@ public class ImageServiceImpl implements ImageService {
         }
         try {
             if (fileName.contains("..")) {
-                throw new APIException(12, "包含非法路径: " + fileName);
+                throw new APIException(412, "包含非法路径: " + fileName);
             }
 
             // 创建存储路径，复制文件
@@ -90,8 +72,9 @@ public class ImageServiceImpl implements ImageService {
             byte[] buffer = file.getInputStream().readAllBytes();
             // 获取SHA256密文
             String SHAKey = sha256Utils.getSHA256(buffer);
-
-            if (imagesMapper.selectOne(wrapperHelper.convert("file_SHA256", SHAKey)) == null) {
+            Images images = imagesMapper.selectOne(wrapperHelper.convert("file_type", SHAKey));
+            // 如果查询不到对应图片，就在数据库中存储；如果查到了，就和评论一样，插入对应帖子id
+            if (images == null) {
                 // 复制文件
                 Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
                 // 数据库插入images
@@ -103,7 +86,7 @@ public class ImageServiceImpl implements ImageService {
                 imagesMapper.insert(image);
                 return fileName;
             }else {
-                return null;
+                return images.getFileName();
             }
         }catch (IOException e){
             throw new APIException(13, e.getMessage());

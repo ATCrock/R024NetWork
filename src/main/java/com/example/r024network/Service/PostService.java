@@ -14,4 +14,5 @@ public interface PostService {
     void scheduledPost(Integer user_account, String title, String content, Integer isAnonymous, Date publishTime);
     void checkScheduledPost();
     Date addTime(Date date, Integer addingHour, Integer addingMinute);
+    void scheduledPostWithImages(Integer user_account, String title, String content, Integer isAnonymous, Date publishTime, List<MultipartFile> imageFiles);
 }

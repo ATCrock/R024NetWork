@@ -47,6 +47,7 @@ public class PostController {
     /**修改帖子
      * @param postRequest 帖子的json流（用户账号在jwt中存储，需要输入标题，文本，是否匿名，帖子id通过选择帖子来获取）
      * @param request 前后端网络请求，包含jwt
+        感觉目前这个东西还是有问题的，需要在前端那边测试一下
      * @return {@link AjaxResult }
      */
     @PutMapping("/rewrite_post")
@@ -141,8 +142,21 @@ public class PostController {
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }
         return AjaxResult.success();
-
     }
+
+    @PostMapping("scheduled_post_with_images")
+    public AjaxResult<Postdata> postScheduledPostWithPost(@Valid @RequestParam String title, String content, Integer is_public, List<MultipartFile> files, Integer addingHour, Integer addingMinute, HttpServletRequest request){
+        Integer userAccount = (Integer) request.getAttribute("user_account");
+        try{
+            Date date = new Date();
+            date = postService.addTime(date, addingHour, addingMinute);
+            postService.scheduledPostWithImages(userAccount, title,content, is_public, date, files);
+        }catch (APIException e){
+            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
+        }
+        return AjaxResult.success();
+    }
+
 
 //    @GetMapping
 //    public AjaxResult<Postdata> checkScheduledPost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){

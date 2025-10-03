@@ -5,7 +5,6 @@ import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.ImageService;
 import com.example.r024network.Service.PostService;
 import com.example.r024network.Service.UserService;
-import com.example.r024network.entity.Comment;
 import com.example.r024network.entity.Images;
 import com.example.r024network.entity.Postdata;
 import com.example.r024network.entity.Userdata;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -53,7 +51,7 @@ public class PostServiceImpl implements PostService {
     public void postSingleConfession(Integer account, String title, String content, Integer isAnonymous){
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
         if (title.isBlank() || content.isBlank()){
-            throw new APIException(413, "标题或内容不能为空");
+            throw new APIException(411, "标题或内容不能为空");
         }
         // 1为公开，0为匿名
         if (! (isAnonymous == 1 || isAnonymous == 0) ){
@@ -68,14 +66,14 @@ public class PostServiceImpl implements PostService {
     public void rewritePost(Integer postId, Integer account, String title, String content, Integer isAnonymous){
         Postdata post = postdataMapper.selectOne(wrapperHelper.convert("post_id", postId));
         if (post == null){
-            throw new APIException(411, "没有对应标题的帖子");
+            throw new APIException(410, "没有对应的帖子");
         }else {
             Userdata userdata = userdataMapper.selectById(post.getUserId());
             Userdata userdata2 = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
             if (Objects.equals(userdata.getUserId(), userdata2.getUserId())) {
                 postdataMapper.insert(Postdata.builder().userId(userdata.getUserId()).userName(userdata2.getUserName()).publicOrPrivate(isAnonymous).build());
             }else {
-                throw new APIException(412, "你没有发过这个帖子");
+                throw new APIException(410, "没有对应的帖子");
             }
         }
     }
@@ -89,13 +87,13 @@ public class PostServiceImpl implements PostService {
         Postdata post = postdataMapper.selectOne(queryWrapper);
 
         if (post == null){
-            throw new APIException(411, "没有对应的帖子");
+            throw new APIException(410, "没有对应的帖子");
         }else {
             Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
             if (Objects.equals(post.getUserId(), userdata.getUserId())) {
                 postdataMapper.delete(queryWrapper);
             }else {
-                throw new APIException(412, "你没有发过这个帖子");
+                throw new APIException(410, "你没有发过这个帖子");
             }
         }
     }
@@ -129,9 +127,9 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    public void postWithImageParentComment(Integer user_account, String title, String content, Integer isAnonymous, List<MultipartFile> imageFiles) {
+    public String[] storeListFiles(List<MultipartFile> imageFiles){
         if(imageFiles.size() > 9){
-            throw new APIException(6, "不能上传大于9张图");
+            throw new APIException(412, "不能上传大于9张图");
         }else {
             String[] fileNameArrays = new String[imageFiles.size()];
             int count = 0;
@@ -142,23 +140,36 @@ public class PostServiceImpl implements PostService {
                 if (tempFileC != null){
                     fileNameArrays[count] = tempFileC;
                     count++;
+                }
             }
+            return fileNameArrays;
         }
-        if (fileNameArrays[0] != null){
-            // 说明存储成功，先发帖子
+    }
+
+
+    public void postWithImageParentComment(Integer user_account, String title, String content, Integer isAnonymous, List<MultipartFile> imageFiles){
+        String[] fileNameArrays = storeListFiles(imageFiles);
+        if (fileNameArrays[0] != null) {
             Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", user_account));
-            Postdata postdata = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).build();
+            Postdata postdata = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).status(2).build();
             postdataMapper.insert(postdata);
-            for (int i = 0; i < imageFiles.size(); i++) {
+            for (String fileNameArray : fileNameArrays) {
                 // 再把这个帖子的id赋给每个图片
-                Images images = imagesMapper.selectOne(wrapperHelper.convert("file_name", fileNameArrays[i]));
+                Images images = imagesMapper.selectOne(wrapperHelper.convert("file_name", fileNameArray));
                 images.setUserId(userdata.getUserId());
-                images.setPostId(postdata.getPostId());
+                String tempId = images.getPostId();
+                String blendingId;
+                if (Objects.equals(tempId, "null")) {
+                    blendingId = images.getPostId() + ";" + postdata.getPostId();
+                }else {
+                    blendingId = String.valueOf(postdata.getPostId());
+                }
+                images.setPostId(blendingId);
                 imagesMapper.insertOrUpdate(images);
                 }
             }
         }
-    }
+
 
     public void scheduledPost(Integer user_account, String title, String content, Integer isAnonymous, Date publishTime){
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", user_account));
@@ -167,12 +178,35 @@ public class PostServiceImpl implements PostService {
         postdataMapper.insert(post);
     }
 
+    public void scheduledPostWithImages(Integer user_account, String title, String content, Integer isAnonymous, Date publishTime, List<MultipartFile> imageFiles){
+        String[] fileNameArrays = storeListFiles(imageFiles);
+        if (fileNameArrays[0] != null) {
+            Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", user_account));
+            Postdata postdata = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).status(1).scheduleTick(publishTime).build();
+            postdataMapper.insert(postdata);
+            for (String fileNameArray : fileNameArrays) {
+                // 再把这个帖子的id赋给每个图片
+                Images images = imagesMapper.selectOne(wrapperHelper.convert("file_name", fileNameArray));
+                images.setUserId(userdata.getUserId());
+                String tempId = images.getPostId();
+                String blendingId;
+                if (Objects.equals(tempId, "null")) {
+                    blendingId = images.getPostId() + ";" + postdata.getPostId();
+                }else {
+                    blendingId = String.valueOf(postdata.getPostId());
+                }
+                images.setPostId(blendingId);
+                imagesMapper.insertOrUpdate(images);
+            }
+        }
+    }
+
     public void checkScheduledPost(){
         QueryWrapper<Postdata> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", 1).le("schedule_tick", new Date());// 获取未发布帖子，对比时间
         List<Postdata> scheduledPosts = postdataMapper.selectList(queryWrapper);
         if(scheduledPosts.isEmpty()){
-            throw new APIException(410, "没有找到对应帖子");
+            System.out.println("没有等待执行的任务");
         }
         for(Postdata postdata : scheduledPosts){
             postdata.setStatus(2);
@@ -184,6 +218,7 @@ public class PostServiceImpl implements PostService {
     }
 
     public Date addTime(Date date, Integer addingHour, Integer addingMinute){
+        // 将date的值添加指定小时与分钟
         LocalDateTime localDateTime = date.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();

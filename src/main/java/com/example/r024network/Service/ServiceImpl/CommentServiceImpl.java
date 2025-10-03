@@ -2,16 +2,12 @@ package com.example.r024network.Service.ServiceImpl;
 
 import com.example.r024network.Exception.APIException;
 import com.example.r024network.Service.CommentService;
-import com.example.r024network.Service.ImageService;
 import com.example.r024network.entity.Comment;
-import com.example.r024network.entity.Images;
 import com.example.r024network.entity.Userdata;
 import com.example.r024network.mapper.CommentMapper;
-import com.example.r024network.mapper.ImagesMapper;
 import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;

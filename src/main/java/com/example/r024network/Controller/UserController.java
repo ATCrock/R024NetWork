@@ -9,15 +9,10 @@ import com.example.r024network.Exception.APIException;
 import com.example.r024network.Result.AjaxResult;
 import com.example.r024network.Service.UserService;
 import jakarta.annotation.Resource;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/apifox/user")
@@ -59,16 +54,14 @@ public class UserController {
 
 
     /**更新个人信息
-     * @param upadteInformationRequest 更新个人信息需要的json流
      * @param request 前后端网络请求
      * @return {@link AjaxResult }<{@link UpadteInformationRequest }>
      */
     @PutMapping("/update")
-    public AjaxResult<UpadteInformationRequest> updateUserInformation(@Valid @RequestBody UpadteInformationRequest upadteInformationRequest, HttpServletRequest request) {
-        String userAccount = (String) request.getAttribute("user_account");
+    public AjaxResult<UpadteInformationRequest> updateUserInformation(@Valid @RequestParam String new_account, String user_name, String password, HttpServletRequest request) {
+        String userAccount = request.getAttribute("user_account").toString();
         try {
-            userService.updateUserInformation(userAccount, upadteInformationRequest.getLatestUserAccount(),
-                    upadteInformationRequest.getUserName(), upadteInformationRequest.getPassword());
+            userService.updateUserInformation(userAccount, new_account, user_name, password);
         } catch (APIException e) {
             return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
         }

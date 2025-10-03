@@ -8,13 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
-/**
- * @TableName images
- */
-
-/**
- * @TableName images
- */
 @TableName(value ="images")
 @Data
 public class Images {
@@ -22,7 +15,7 @@ public class Images {
     @TableId(type = IdType.AUTO)
     private String picId;
     @JsonProperty("post_id")
-    private Integer postId;
+    private String postId;
     @JsonProperty("user_id")
     private Integer userId;
     @JsonProperty("file_path")

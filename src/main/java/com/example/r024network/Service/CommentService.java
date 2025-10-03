@@ -1,7 +1,6 @@
 package com.example.r024network.Service;
 
 import com.example.r024network.entity.Comment;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 

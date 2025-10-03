@@ -18,7 +18,6 @@ public class Userdata {
     @JsonProperty("user_id")
     @TableId(type = IdType.AUTO)
     private Integer userId;
-
     @JsonProperty("user_account")
     private String userAccount;
     @JsonProperty("name")
@@ -27,8 +26,8 @@ public class Userdata {
     private String userPassword;
     @JsonProperty("user_type")
     private Integer userType;
-    @JsonProperty("head_portrait")
-    private String userHeadPortraitAddress;
+    @JsonProperty("user_head_portrait_id")
+    private String userHeadPortraitId;
     @JsonProperty("black_list")
     private String blackList = "0";
 }

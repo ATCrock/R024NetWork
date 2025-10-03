@@ -1,14 +1,10 @@
 package com.example.r024network.job;
 
 import org.quartz.JobDetail;
-import org.springframework.boot.autoconfigure.quartz.QuartzDataSource;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-
-import javax.sql.DataSource;
 
 @Configuration
 public class QuartzConfig {

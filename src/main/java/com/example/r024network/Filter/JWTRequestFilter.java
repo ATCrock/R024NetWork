@@ -1,5 +1,7 @@
 package com.example.r024network.Filter;
 
+import com.example.r024network.Exception.APIException;
+import com.example.r024network.Helper.ResultHelper;
 import com.example.r024network.jwt.JWTTokenUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
@@ -25,31 +27,30 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         // 如果是公开接口，直接放行
         if (shouldNotFilter(request)) {
             filterChain.doFilter(request, response);
-            return;
         }
         String authHeader = request.getHeader("Authorization");
         // 如果没有Authorization或格式不正确
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            sendUnauthorizedResponse(response, "Missing or invalid Authorization header");
-            return;
-        }
-
+            sendUnauthorizedResponse(response, 415, "jwt不存在或jwt格式错误");
+            throw new APIException(415, "jwt不存在或jwt格式错误");
+        }else{
         // 提取JWT Token
         String token = authHeader.substring(7);
         // 验证JWT Token
         JWTTokenUtil.JwtValidationResult validationResult = jwtTokenUtil.validateJWT(token);
 
-        if (!validationResult.valid()) {
-                sendUnauthorizedResponse(response, validationResult.message());
-                return;
+        if (validationResult == null || !validationResult.valid()) {
+            sendUnauthorizedResponse(response, 414, "jwt已过期");
         }
-
-        // Token有效，将用户信息存入请求属性
-        Integer userAccount = Integer.valueOf(jwtTokenUtil.getUsernameFromToken(token));
-        Integer userId = jwtTokenUtil.getUserIdFromToken(token);
-        request.setAttribute("user_account", userAccount);
-        request.setAttribute("userId", userId);
-        filterChain.doFilter(request, response);
+        else {
+            // Token有效，将用户信息存入请求属性
+            Integer userAccount = Integer.valueOf(jwtTokenUtil.getUsernameFromToken(token));
+            Integer userId = jwtTokenUtil.getUserIdFromToken(token);
+            request.setAttribute("user_account", userAccount);
+            request.setAttribute("userId", userId);
+            filterChain.doFilter(request, response);
+            }
+        }
     }
 
     @Override
@@ -60,13 +61,13 @@ public class JWTRequestFilter extends OncePerRequestFilter {
                 path.startsWith("/apifox/user/register");
     }
 
-    private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
+    private void sendUnauthorizedResponse(HttpServletResponse response, Integer errCode, String message) throws IOException {
         // 处理前端响应并返回无响应头报错
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String responseBody = String.format("{\"code\": 401, \"message\": \"%s\"}", message);
+        String responseBody = String.format("{\"code\": %d, \"message\": \"%s\"}", errCode, message);
         response.getWriter().write(responseBody);
     }
 }

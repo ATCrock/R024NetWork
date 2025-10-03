@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     public void register(String userAccount, String userName, String password, Integer userType){
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account",userAccount));
         if (userdata==null){
-            userdata = Userdata.builder().userAccount(userAccount).userName(userName).userPassword(password).userType(userType).userHeadPortraitAddress("default address").build();
+            userdata = Userdata.builder().userAccount(userAccount).userName(userName).userPassword(password).userType(userType).userHeadPortraitId("default address").build();
             userdataMapper.insert(userdata);
         }
         else {
