@@ -28,11 +28,7 @@ public class ImageController {
         if (file == null){
             throw new APIException(410, "文件不能为空");
         }
-        try{
-            imageService.storeFile(file);
-        } catch (APIException e) {
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
+        imageService.storeFile(file);
         return AjaxResult.success();
     }
 
@@ -46,13 +42,10 @@ public class ImageController {
         if (file == null){
             throw new APIException(410, "文件不能为空");
         }
-        try{
             String fileName = imageService.storeFile(file);
             Integer user_id = (Integer) request.getAttribute("user_id");
             imageService.updateHeadPortraitDefault(fileName, user_id);
-        } catch (APIException e) {
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
+
         return AjaxResult.success();
     }
 }

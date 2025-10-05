@@ -1,8 +1,7 @@
 package com.example.r024network.Result;
 
+import com.example.r024network.Exception.ExceptionEnum;
 import lombok.*;
-import org.springframework.http.HttpStatus;
-
 
 /**
  *一个全局错误处理类
@@ -28,25 +27,37 @@ import org.springframework.http.HttpStatus;
 
 public class AjaxResult<T>{
     public static final String SUCCESS_MESSAGE = "SUCCESS";
-    private Integer code;
+    private int code;
     private String message;
     private T user_data;
     private T user_data2;
 
     public static <N> AjaxResult<N> success() {
-        return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, null, null);
+        return new AjaxResult<>(200, SUCCESS_MESSAGE, null, null);
     }
 
     public static <N> AjaxResult<N> success(N user_data) {
-        return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, user_data, null);
+        return new AjaxResult<>(200, SUCCESS_MESSAGE, user_data, null);
     }
 
     public static <N> AjaxResult<N> success(N user_data1, N user_data2) {
         // userData1是帖子，userData2是评论
-        return new AjaxResult<>(HttpStatus.OK.value(), SUCCESS_MESSAGE, user_data1, user_data2);
+        return new AjaxResult<>(200, SUCCESS_MESSAGE, user_data1, user_data2);
     }
 
-    public static <N> AjaxResult<N> fail(Integer statusCode, String errorMessage) {
-        return new AjaxResult<>(statusCode, errorMessage, null, null);
+    public static <N> AjaxResult<N> fail(int errCode, String errMsg) {
+        return new AjaxResult<>(errCode, errMsg, null, null);
+    }
+
+    public static <N> AjaxResult<N> fail(String errMsg) {
+        return new AjaxResult<>(1, errMsg, null, null);
+    }
+
+    public static <N> AjaxResult<N> fail(ExceptionEnum exceptionEnum) {
+        return new AjaxResult<>(exceptionEnum.getCode(), exceptionEnum.getResultMsg(), null, null);
+    }
+
+    public static <N> AjaxResult<N> fail(ExceptionEnum exceptionEnum, String errMsg) {
+        return new AjaxResult<>(exceptionEnum.getCode(), errMsg, null, null);
     }
 }

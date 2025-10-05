@@ -10,6 +10,7 @@ import com.example.r024network.mapper.UserdataMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.Arrays;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -20,16 +21,17 @@ public class UserServiceImpl implements UserService {
     private final WrapperHelper  wrapperHelper = new WrapperHelper();
 
     @Override
-    public void register(String userAccount, String userName, String password, Integer userType){
+    public boolean register(String userAccount, String userName, String password, Integer userType){
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account",userAccount));
         if (userdata==null){
             userdata = Userdata.builder().userAccount(userAccount).userName(userName).userPassword(password).userType(userType).userHeadPortraitId("default address").build();
             userdataMapper.insert(userdata);
+            return true;
         }
-        else {
-            throw new APIException(401, "该账号已注册");
-        }
+        return false;
     }
+
+
 
     @Override
     public String login(String userAccount, String password){
@@ -37,11 +39,10 @@ public class UserServiceImpl implements UserService {
         queryWrapper.eq("user_account",userAccount);
         queryWrapper.eq("user_password",password); // 检索用户密码同时对应用户账号
         Userdata userdata = userdataMapper.selectOne(queryWrapper);
-        if (userdata==null){
-            throw new APIException(402, "账号或密码错误");
-        }else  {
+        if (userdata!=null) {
             return JWTTokenUtil.generateToken(userAccount, userdata.getUserId());// 登录成功后会返回jwtToken，作为登录凭据
         }
+        return null;
     }
 
     @Override
@@ -109,5 +110,10 @@ public class UserServiceImpl implements UserService {
         // 获取当前用户黑名单
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", userAccount));
         return stringSplitter.splitToIntArray(userdata.getBlackList());
+    }
+
+    @Override
+    public String loginRefresh(String userAccount, int userId){
+        return JWTTokenUtil.generateToken(userAccount, userId);
     }
 }

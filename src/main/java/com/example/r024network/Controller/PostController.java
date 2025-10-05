@@ -36,11 +36,7 @@ public class PostController {
     @PostMapping("/post")
     public AjaxResult<PostRequest> post(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
-        try{
             postService.postSingleConfession(userAccount,postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous());
-        }catch (APIException e){
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
         return AjaxResult.success();
     }
 
@@ -53,11 +49,7 @@ public class PostController {
     @PutMapping("/rewrite_post")
     public AjaxResult<PostRequest> rewritePost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
-        try{
             postService.rewritePost(postRequest.getPostId(), userAccount, postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous());
-        }catch (APIException e){
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
         return  AjaxResult.success();
     }
 
@@ -69,11 +61,7 @@ public class PostController {
     @DeleteMapping("/delete")
     public AjaxResult<PostRequest> deletePost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
-        try{
             postService.deletePost(postRequest.getPostId(), userAccount);
-        }catch (APIException e){
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
         return  AjaxResult.success();
     }
 
@@ -84,11 +72,7 @@ public class PostController {
     @GetMapping("/get")
     public AjaxResult<Postdata[]> getPost(@Valid @RequestBody HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
-        try{
             this.postdata = postService.getAllPost(userAccount);
-        }catch (APIException e){
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
         return AjaxResult.success(postdata);
     }
 
@@ -104,11 +88,7 @@ public class PostController {
     @PostMapping(value = "/post_with_images", consumes ="multipart/form-data")
     public AjaxResult<Object> postWithImages(@Valid @RequestParam String title, String content, Integer is_public, List<MultipartFile> files, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
-        try {
-            postService.postWithImageParentComment(userAccount, title, content, is_public, files);
-        }catch (APIException e){
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
+        postService.postWithImageParentComment(userAccount, title, content, is_public, files);
         return AjaxResult.success();
     }
 
@@ -122,38 +102,26 @@ public class PostController {
     @GetMapping("/get_post_and_comments")
     public AjaxResult<Object[]> getPostAndComments(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
-        try{
-            this.postdata = postService.getAllPost(userAccount);
-            this.comments = commentService.listAllComment(postRequest.getPostId()).toArray(new Comment[0]);
-        }catch (APIException e){
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
+        this.postdata = postService.getAllPost(userAccount);
+        this.comments = commentService.listAllComment(postRequest.getPostId()).toArray(new Comment[0]);
         return AjaxResult.success(postdata, comments);
     }
 
     @PostMapping("scheduled_post")
     public AjaxResult<Postdata> postScheduledPost(@Valid @RequestBody PostRequest postRequest, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
-        try{
-            Date date = new Date();
-            date = postService.addTime(date, postRequest.getAddingHour(), postRequest.getAddingMinute());
-            postService.scheduledPost(userAccount, postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous(),date);
-        }catch (APIException e){
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
+        Date date = new Date();
+        date = postService.addTime(date, postRequest.getAddingHour(), postRequest.getAddingMinute());
+        postService.scheduledPost(userAccount, postRequest.getTitle(),postRequest.getContent(),postRequest.getIsAnonymous(),date);
         return AjaxResult.success();
     }
 
     @PostMapping("scheduled_post_with_images")
     public AjaxResult<Postdata> postScheduledPostWithPost(@Valid @RequestParam String title, String content, Integer is_public, List<MultipartFile> files, Integer addingHour, Integer addingMinute, HttpServletRequest request){
         Integer userAccount = (Integer) request.getAttribute("user_account");
-        try{
-            Date date = new Date();
-            date = postService.addTime(date, addingHour, addingMinute);
-            postService.scheduledPostWithImages(userAccount, title,content, is_public, date, files);
-        }catch (APIException e){
-            return AjaxResult.fail(e.getStatusCode(), e.getErrorMessage());
-        }
+        Date date = new Date();
+        date = postService.addTime(date, addingHour, addingMinute);
+        postService.scheduledPostWithImages(userAccount, title,content, is_public, date, files);
         return AjaxResult.success();
     }
 
