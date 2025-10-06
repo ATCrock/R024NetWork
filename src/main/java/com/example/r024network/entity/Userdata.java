@@ -29,5 +29,6 @@ public class Userdata {
     @JsonProperty("user_head_portrait_id")
     private String userHeadPortraitId;
     @JsonProperty("black_list")
+    @Builder.Default
     private String blackList = "0";
 }

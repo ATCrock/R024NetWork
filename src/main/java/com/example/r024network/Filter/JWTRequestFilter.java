@@ -23,7 +23,6 @@ public class JWTRequestFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
         // 如果是公开接口，直接放行
         if (shouldNotFilter(request)) {
             filterChain.doFilter(request, response);
@@ -32,7 +31,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         // 如果没有Authorization或格式不正确
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             sendUnauthorizedResponse(response, 415, "jwt不存在或jwt格式错误");
-            throw new APIException(415, "jwt不存在或jwt格式错误");
+            //throw new APIException(415, "jwt不存在或jwt格式错误");
         }else{
         // 提取JWT Token
         String token = authHeader.substring(7);
@@ -43,7 +42,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
             sendUnauthorizedResponse(response, 414, "jwt已过期");
         }
         else {
-            // Token有效，将用户信息存入请求属性
+            // Token有效，将信息存入请求属性
             Integer userAccount = Integer.valueOf(jwtTokenUtil.getUsernameFromToken(token));
             Integer userId = jwtTokenUtil.getUserIdFromToken(token);
             request.setAttribute("user_account", userAccount);
@@ -57,8 +56,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
         // 公开接口不需要验证
-        return path.startsWith("/apifox/user/login") ||
-                path.startsWith("/apifox/user/register");
+        return path.startsWith("/apifox/user/login") || path.startsWith("/apifox/user/register");
     }
 
     private void sendUnauthorizedResponse(HttpServletResponse response, Integer errCode, String message) throws IOException {
@@ -66,7 +64,6 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-
         String responseBody = String.format("{\"code\": %d, \"message\": \"%s\"}", errCode, message);
         response.getWriter().write(responseBody);
     }
