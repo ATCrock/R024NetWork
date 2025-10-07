@@ -1,15 +1,19 @@
 package com.example.r024network.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @TableName(value ="images")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Images {
     @JsonProperty("image_id")
     @TableId(type = IdType.AUTO)

@@ -15,6 +15,7 @@ import lombok.Data;
 @Data
 @Builder
 public class Comment {
+    @TableId(type = IdType.AUTO)
     private Integer commentId;
 
     private Integer postId;

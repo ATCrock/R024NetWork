@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/apifox/comment")
 @Slf4j
+@CrossOrigin(origins = "*")
 public class CommentController {
     @Resource
     private CommentService commentService;

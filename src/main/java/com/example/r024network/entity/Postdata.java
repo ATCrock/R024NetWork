@@ -1,6 +1,4 @@
 package com.example.r024network.entity;
-
-
 import lombok.Data;
 
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -33,6 +31,8 @@ public class Postdata {
     private String title;
     @JsonProperty("content")
     private String content;
+    @JsonProperty("is_fake_name")
+    private Integer isFakeName;
     @JsonProperty("is_public")
     private Integer publicOrPrivate;
     private Integer status; // 1为待定时间发布，2为已发布

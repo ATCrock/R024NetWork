@@ -10,9 +10,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class R024NetWorkApplication {
     public static void main(String[] args) {
-        System.out.println("Java版本: " + System.getProperty("java.version"));
-        System.out.println("Java Home: " + System.getProperty("java.home"));
         SpringApplication.run(R024NetWorkApplication.class, args);
     }
-
 }

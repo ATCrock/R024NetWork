@@ -48,22 +48,23 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void postSingleConfession(Integer account, String title, String content, Integer isAnonymous){
+    public void postSingleConfession(Integer account, String title, String content, Integer isAnonymous, Integer isPublic){
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
         if (title.isBlank() || content.isBlank()){
             throw new APIException(411, "标题或内容不能为空");
         }
         // 1为公开，0为匿名
         if (! (isAnonymous == 1 || isAnonymous == 0) ){
-            throw new APIException(420, "不支持的格式，0为匿名，1为显示名字");
+            throw new APIException(420, "不支持的匿名格式，1为匿名，0为显示名字");
         }
-        else{
-            postdataMapper.insert(Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).status(2).build());
+        if (! (isPublic== 1 || isPublic == 0)){
+            throw new APIException(420, "不支持的公开格式，0为不公开，1为公开");
         }
+        postdataMapper.insert(Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(account)).userName(userdata.getUserName()).title(title).content(content).isFakeName(isAnonymous).publicOrPrivate(1).status(2).build());
     }
 
     @Override
-    public void rewritePost(Integer postId, Integer account, String title, String content, Integer isAnonymous){
+    public void rewritePost(Integer postId, Integer account, String title, String content, Integer isAnonymous, Integer isPublic){
         Postdata post = postdataMapper.selectOne(wrapperHelper.convert("post_id", postId));
         if (post == null){
             throw new APIException(410, "没有对应的帖子");
@@ -71,7 +72,14 @@ public class PostServiceImpl implements PostService {
             Userdata userdata = userdataMapper.selectById(post.getUserId());
             Userdata userdata2 = userdataMapper.selectOne(wrapperHelper.convert("user_account", account));
             if (Objects.equals(userdata.getUserId(), userdata2.getUserId())) {
-                postdataMapper.insert(Postdata.builder().userId(userdata.getUserId()).userName(userdata2.getUserName()).publicOrPrivate(isAnonymous).build());
+                post.setUserName(userdata2.getUserName());
+                post.setUserAccount(String.valueOf(account));
+                post.setTitle(title);
+                post.setContent(content);
+                post.setIsFakeName(isAnonymous);
+                post.setPublicOrPrivate(isPublic);
+                post.setStatus(2);
+                postdataMapper.insertOrUpdate(post);
             }else {
                 throw new APIException(410, "没有对应的帖子");
             }
@@ -82,7 +90,6 @@ public class PostServiceImpl implements PostService {
     public void deletePost(Integer postId, Integer account) {
         // 用户自己的账号
         QueryWrapper<Postdata> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_account",account);
         queryWrapper.eq("post_id",postId);
         Postdata post = postdataMapper.selectOne(queryWrapper);
 
@@ -113,18 +120,44 @@ public class PostServiceImpl implements PostService {
             int[] blackList = userService.getBlack(account);
             blackList = Arrays.copyOf(userService.getBlack(account), blackList.length);
             for (Postdata postdata : postList) {
-                if (binarySearch(blackList, postdata.getUserId()) == -1) {         // -1相当于没找到对应用户id
-                    if (postdata.getPublicOrPrivate() == 0) {         // 如果发帖子的人匿名
-                        if (!Objects.equals(postdata.getUserId(), userdata.getUserId())) { // 非用户自己看到帖子
-                                postdata.setUserName("user");// 不改变数据库内数据，只改变了传输数据
-                            }
-                    }
-                    retPostdata[count] = postdata; // (如果是用户自己看到自己发的帖子，不改变内容)塞进retpostdata
-                    count++;
+                if (binarySearch(blackList, postdata.getUserId()) == -1) {
+                    // -1相当于没找到对应用户id
+                    postdata.setUserId(-userdata.getUserId());
+                    postdata.setTitle("null");
+                    postdata.setContent("null");
+                    postdata.setUserName("null");
+                }else if (postdata.getPublicOrPrivate() == 0){
+                    postdata.setPostId(-1);
+                    postdata.setTitle("null");
+                    postdata.setContent("null");
+                    postdata.setUserName("null");
+                }else if(postdata.getIsFakeName() == 1 && !(Objects.equals(userdata.getUserAccount(), postdata.getUserAccount()))){
+                    // 匿名，并且userdata筛出来的账号和postdata不一样
+                    postdata.setUserName("user");
                 }
+                retPostdata[count] = postdata; // (如果是用户自己看到自己发的帖子，不改变内容)塞进retpostdata
+                count++;
             }
             return retPostdata;
         }
+    }
+
+    @Override
+    public Postdata[] getAllPost() {
+        // 用户自己的账号
+        QueryWrapper<Postdata>  queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("status",2).eq("public_or_private", 1); // 只查询已经发布的帖子
+        List<Postdata> postList = postdataMapper.selectList(queryWrapper);
+        Postdata[] retPostdata = new Postdata[postList.size()];
+        int count = 0;
+        for (Postdata postdata : postList){
+            if (postdata.getIsFakeName() == 1){
+                postdata.setUserName("user");
+            }
+            retPostdata[count] = postdata;
+            count++;
+        }
+        return retPostdata;
     }
 
     public String[] storeListFiles(List<MultipartFile> imageFiles){
@@ -147,11 +180,11 @@ public class PostServiceImpl implements PostService {
     }
 
 
-    public void postWithImageParentComment(Integer user_account, String title, String content, Integer isAnonymous, List<MultipartFile> imageFiles){
+    public void postWithImageParentComment(Integer user_account, String title, String content, Integer isAnonymous, Integer isPublic, List<MultipartFile> imageFiles){
         String[] fileNameArrays = storeListFiles(imageFiles);
         if (fileNameArrays[0] != null) {
             Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", user_account));
-            Postdata postdata = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).status(2).build();
+            Postdata postdata = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).isFakeName(isAnonymous).publicOrPrivate(isPublic).status(2).build();
             postdataMapper.insert(postdata);
             for (String fileNameArray : fileNameArrays) {
                 // 再把这个帖子的id赋给每个图片
@@ -171,18 +204,18 @@ public class PostServiceImpl implements PostService {
         }
 
 
-    public void scheduledPost(Integer user_account, String title, String content, Integer isAnonymous, Date publishTime){
+    public void scheduledPost(Integer user_account, String title, String content, Integer isAnonymous, Integer isPublic, Date publishTime){
         Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", user_account));
         Postdata post = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).status(1).scheduleTick(publishTime).build();
         // 标记为定时发布, schedule_tick为秒数（date是毫秒数）
         postdataMapper.insert(post);
     }
 
-    public void scheduledPostWithImages(Integer user_account, String title, String content, Integer isAnonymous, Date publishTime, List<MultipartFile> imageFiles){
+    public void scheduledPostWithImages(Integer user_account, String title, String content, Integer isAnonymous, Integer isPublic, Date publishTime, List<MultipartFile> imageFiles){
         String[] fileNameArrays = storeListFiles(imageFiles);
         if (fileNameArrays[0] != null) {
             Userdata userdata = userdataMapper.selectOne(wrapperHelper.convert("user_account", user_account));
-            Postdata postdata = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).publicOrPrivate(isAnonymous).status(1).scheduleTick(publishTime).build();
+            Postdata postdata = Postdata.builder().userId(userdata.getUserId()).userAccount(String.valueOf(user_account)).userName(userdata.getUserName()).title(title).content(content).isFakeName(isAnonymous).publicOrPrivate(isPublic).status(1).scheduleTick(publishTime).build();
             postdataMapper.insert(postdata);
             for (String fileNameArray : fileNameArrays) {
                 // 再把这个帖子的id赋给每个图片

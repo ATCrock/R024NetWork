@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/apifox/user")
 @Slf4j
+@CrossOrigin(origins = "*")
+
 public class UserController {
     @Resource
     private UserService userService;
@@ -35,7 +37,6 @@ public class UserController {
         }
     }
 
-
     /** 登录
      * @param loginRequest 登录需要的json流
      * 登录后会在user_data中返回jwt token，作为后续大部分接口验证的字段
@@ -47,7 +48,6 @@ public class UserController {
         token = userService.login(loginRequest.getUserAccount(), loginRequest.getPassword());
         return AjaxResult.success(token);
     }
-
 
     /**更新个人信息
      * @param request 前后端网络请求

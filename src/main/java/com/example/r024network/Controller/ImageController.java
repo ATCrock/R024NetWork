@@ -13,10 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/apifox/image")
 @Slf4j
+@CrossOrigin(origins = "*")
+
 public class ImageController {
     @Resource
     private ImageService imageService;
-
 
     /**保存图片（这个接口一般不单独使用，与其他接口混合或包含于其他接口）
      不需要jwt验证
